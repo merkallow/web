@@ -4,7 +4,7 @@ namespace Merkallow.Web.Services
 {
     public class AppState
     {
-        public string AccountId { get; private set; } = "0x47B40160f72C4321E08DE8B95E262e902c991cD3";
+        public string AccountId { get; private set; }
         public long ChainId { get; private set; }
 
         public string BearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7ImlkIjozLCJwdWJsaWNBZGRyZXNzIjoiMHg0N2I0MDE2MGY3MmM0MzIxZTA4ZGU4Yjk1ZTI2MmU5MDJjOTkxY2QzIn0sImlhdCI6MTY0NzEzNjE1Nn0.sjxSBNzDCuSCPH1vYGOBwVfaDCkB0E-inbWH6VBN8Rw";

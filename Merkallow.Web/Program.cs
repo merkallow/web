@@ -1,6 +1,7 @@
 using Blazored.Toast;
 using Merkallow.Web;
 using Merkallow.Web.Services;
+using MetaMask.Blazor;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
@@ -18,5 +19,6 @@ builder.Services.AddScoped<IDoAddresses, AddressClient>();
 builder.Services.AddScoped<AppState>();
 
 builder.Services.AddBlazoredToast();
+builder.Services.AddMetaMaskBlazor();
 
 await builder.Build().RunAsync();

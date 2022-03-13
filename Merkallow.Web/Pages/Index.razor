@@ -1,23 +1,50 @@
 ﻿@page "/"
+@using MetaMask.Blazor
+@using MetaMask.Blazor.Enums
 @inject IDoProjects Comms
 @inject IDoAddresses Addr
 @inject IToastService Toast
+@inject MetaMaskService Meta
 @inject AppState AppState
 @implements IDisposable
 
 
 <PageTitle>Merkallow</PageTitle>
 
-<div style="margin-bottom: .5rem;">Welcome, <span style="color: #5a349aff; font-weight:bold;">@AppState.AccountToShow()</span></div>
+@if(AppState.IsAuthenticated)
+{
+    <div style="margin-bottom: .5rem;">Welcome, <span style="color: #5a349aff; font-weight:bold;">@AppState.AccountToShow()</span></div>
+}
 
 @if(@Spinning)
 {
     <div class="loader">
-    <div class="inner one"></div>
-    <div class="inner two"></div>
-    <div class="inner three"></div>
-</div>
+        <div class="inner one"></div>
+        <div class="inner two"></div>
+        <div class="inner three"></div>
+    </div>
 }
+@if (string.IsNullOrEmpty(AppState.AccountId))
+{
+    <div>
+        <div class="d-flex justify-content-center">
+            <h2>NFT mint whitelist</h2>
+        </div>
+        <div class="d-flex justify-content-center">
+            <button class="btn btn-primary" @onclick="(() => Authenticate())" disabled="@(!HasMetaMask)">
+                Authenticate
+            </button>
+        </div>
+
+        @if (!HasMetaMask)
+        {
+            <div class="d-flex justify-content-center vertical-space darktext">
+                Please authenticate with <span>&nbsp;</span> <a href="https://metamask.io" target="_blank"> MetaMask </a>.
+            </div>
+        }
+    </div>
+}
+
 else if (SelectedProject == null)
 {
     @if (ShowCreateForm)
@@ -90,14 +117,98 @@ else
     string NewProjectName = string.Empty;
     bool HasNoAddresses => Addresses == null || Addresses.Count == 0;
     bool Spinning = false;
+    void ShowProjectCreation() => ShowCreateForm = true;
+    bool HasMetaMask = true;
 
     protected override async Task OnInitializedAsync()
     {
         Projects = await Comms.Get();
-        Toast.ShowInfo($"retrieved {Projects.Count()} entries");
+
+        MetaMaskService.AccountChangedEvent += MetaMaskService_AccountChangedEvent;
+        MetaMaskService.ChainChangedEvent += MetaMaskService_ChainChangedEvent;
+
+        //Toast.ShowInfo($"retrieved {Projects.Count()} entries");
+
+        HasMetaMask = await Meta.HasMetaMask();
+        if (HasMetaMask)
+            await Meta.ListenToEvents();
+
+        bool isSiteConnected = await Meta.IsSiteConnected();
+        if (isSiteConnected)
+        {
+            await GetSelectedAddress();
+            await GetSelectedNetwork();
+        }
     }
 
-    void ShowProjectCreation() => ShowCreateForm = true;
+
+    private async Task MetaMaskService_ChainChangedEvent((long, Chain) arg)
+    {
+        Console.WriteLine("MetaMaskService_ChainChangedEvent");
+        Spinning = true;
+        await GetSelectedNetwork();
+        Spinning = false;
+        StateHasChanged();
+    }
+
+    private async Task MetaMaskService_AccountChangedEvent(string arg)
+    {
+        Console.WriteLine("MetaMaskService_AccountChangedEvent");
+        Spinning = true;
+        await GetSelectedAddress();
+        Spinning = false;
+        StateHasChanged();
+    }
+
+    public async Task GetSelectedAddress()
+    {
+        await GetCurrentConnection();
+        StateHasChanged();
+    }
+
+    public async Task GetCurrentConnection()
+    {
+        var address = await Meta.GetSelectedAddress();
+        AppState.SetAccount(this, address);
+        var chainInfo = await Meta.GetSelectedChain();
+
+        Console.WriteLine($"ChainID: {AppState.ChainId}");
+        AppState.SetChain(this, chainInfo.chainId);
+        StateHasChanged();
+    }
+
+    public async Task GetSelectedNetwork()
+    {
+        await GetCurrentConnection();
+    }
+
+    async Task Authenticate()
+    {
+        Console.WriteLine("Authenticating...");
+        Spinning = true;
+        if (!await Meta.HasMetaMask())
+        {
+            Console.WriteLine("Has no MetaMask");
+            HasMetaMask = false;
+            StateHasChanged();
+        }
+        else
+        {
+            try
+            {
+                if (!await Meta.IsSiteConnected())
+                    await Meta.ConnectMetaMask();
+                var user = await Meta.GetSelectedAddress();
+                AppState.SetAccount(this, user);
+            }
+            catch (Exception ex)
+            {
+                Toast.ShowError($"Auth failed. Please, check your wallet");
+            }
+        }
+        Spinning = false;
+    }
+
 
     async void CreateProject()
     {
@@ -121,6 +232,7 @@ else
         SelectedProject = p;
         SelectedAddress = null;
         GeneratedRoot = null;
+        ShowCreateForm = false;
         Addresses = await Addr.Get(p.Id);
         Spinning = false;
         StateHasChanged();
@@ -166,6 +278,7 @@ else
         //    };
         Spinning = false;
     }
+
 
 
     // ----
