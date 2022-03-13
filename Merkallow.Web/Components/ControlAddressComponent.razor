@@ -37,7 +37,7 @@
         // @! do validation
         await AddEvent.InvokeAsync(PublicAddress);
         PublicAddress = string.Empty;
-        await AddressInput.FocusAsync();
+        //await AddressInput.FocusAsync();
     }
 
     async Task GenerateRoot()
@@ -55,10 +55,8 @@
         if (SelectedAddress != null)
         {
             Console.WriteLine("setting");
-            //PublicAddress = SelectedAddress.PublicAddress;
         }
         await AddressInput.FocusAsync();
         await JS.InvokeAsync<object>("selectElement", "addressinput");
-        //return base.OnAfterRenderAsync(firstRender);
     }
 }
