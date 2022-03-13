@@ -1,0 +1,21 @@
+﻿@inject IDoComms Comms
+@inject IToastService Toast
+
+<div style="margin-top: 2rem; margin-bottom:2rem;">Get project from api:</div>
+@if(sample != null)
+{
+    <div>id: @sample.Id</div>
+    <div>name: @sample.Name</div>
+    <div>user: @sample.UserId</div>
+}
+
+
+@code {
+    Project sample;
+
+    protected override async Task OnInitializedAsync()
+    {
+        sample = await Comms.GetProject(1);
+        Toast.ShowInfo($"retrieved: {sample.Name}");
+    }
+}

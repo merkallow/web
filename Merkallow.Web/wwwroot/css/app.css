@@ -62,3 +62,39 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+
+.blazored-toast-message {
+    font-size: 24px;
+}
+
+@media (max-width: 576px) {
+    .blazored-toast-message {
+        font-size: 18px;
+    }
+}
+
+.blazored-toast-info {
+    background-color: #8248e5;
+    color: #d7dada;
+}
+
+    .blazored-toast-info .blazored-toast-heading {
+        background-color: #8248e5;
+    }
+
+.blazored-toast-warning {
+    background-color: #f4d35e80;
+}
+
+    .blazored-toast-warning .blazored-toast-heading {
+        color: #ee725a;
+    }
+
+.blazored-toast-error {
+    background-color: #ee725a95;
+}
+
+    .blazored-toast-error .blazored-toast-heading {
+        color: #101214;
+    }

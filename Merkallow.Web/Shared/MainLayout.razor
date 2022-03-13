@@ -1,4 +1,10 @@
-﻿@inherits LayoutComponentBase
+﻿@using Blazored.Toast.Configuration
+@inherits LayoutComponentBase
+
+<BlazoredToasts Position="ToastPosition.BottomRight"
+                Timeout="3"
+                ShowProgressBar="true"
+                SuccessClass="success-toast-override" />
 
 <div class="page">
     <div class="sidebar">
