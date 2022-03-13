@@ -13,7 +13,8 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 var config = new ClientConfig() { ApiUrl = builder.Configuration["ApiUrl"] };
 
 builder.Services.AddSingleton<ClientConfig>(config);
-builder.Services.AddScoped<IDoComms, CommsClient>();
+builder.Services.AddScoped<IDoProjects, ProjectsClient>();
+builder.Services.AddScoped<IDoAddresses, AddressClient>();
 builder.Services.AddScoped<AppState>();
 
 builder.Services.AddBlazoredToast();

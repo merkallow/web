@@ -1,0 +1,13 @@
+﻿<div class="address-component @HighlightClass">
+    @CurrentAddress.PublicAddress
+</div>
+
+@code {
+    [Parameter]
+    public Address CurrentAddress { get; set; }
+    [Parameter]
+    public bool Selected { get; set; }
+
+    string HighlightClass => Selected ? "address-highlight" : "";
+
+}

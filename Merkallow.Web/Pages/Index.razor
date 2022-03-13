@@ -1,9 +1,186 @@
 ﻿@page "/"
+@inject IDoProjects Comms
+@inject IDoAddresses Addr
+@inject IToastService Toast
+@inject AppState AppState
+@implements IDisposable
+
 
 <PageTitle>Merkallow</PageTitle>
 
+<div style="margin-bottom: .5rem;">Welcome, <span style="color: #5a349aff; font-weight:bold;">@AppState.AccountToShow()</span></div>
+
+@if(@Spinning)
+{
+    <div class="loader">
+    <div class="inner one"></div>
+    <div class="inner two"></div>
+    <div class="inner three"></div>
+</div>
+}
+else if (SelectedProject == null)
+{
+    @if (ShowCreateForm)
+    {
+        <div>
+            <input type="text" @bind-value="@NewProjectName" placeholder="Project name" class="project-input">
+            <button class="btn btn-primary" @onclick="CreateProject">Create</button>
+        </div>
+    }
+    else
+    {
+        <div>
+            <button class="btn btn-primary" @onclick="ShowProjectCreation"><span class="oi oi-plus" style="margin-right:.5rem; font-size: 14px;"></span>New Project</button>
+        </div>
+    }
+
+    @if (Projects != null)
+    {
+        foreach (var prj in Projects)
+        {
+            <div @onclick="@(() => SelectProject(prj))" class="project-card">
+                <ProjectComponent CurrentProject=prj />
+            </div>
+        }
+    }
+}
+else
+{
+    <div>
+        <button class="btn btn-secondary" @onclick="BackToProjects"><span class="oi oi-arrow-circle-left" style="margin-right:.5rem; font-size: 14px;"></span>Back</button>
+    </div>
+
+    <h3 style="margin-top: 1rem;">
+        Project: @SelectedProject.Name
+    </h3>
+
+    @if (GeneratedRoot != null)
+    {
+        <div class="root-cid">
+            <div><span style="margin-right: .5rem;">Root:</span> @GeneratedRoot.Root</div>
+            <div><span style="margin-right: .8rem;">CID:</span> @GeneratedRoot.Cid</div>
+        </div>
+    }
+
+    <div>
+        <ControlAddressComponent GenerateEvt=@GenerateRoot
+                             SelectedAddress=@SelectedAddress
+                             AddEvent=@AddAddress
+                             CannotGenerate=@HasNoAddresses />
+    </div>
+
+    @if (Addresses != null)
+    {
+        @foreach (var addr in Addresses)
+        {
+            <div @onclick="(() => SelectAddress(addr))">
+                <AddressComponent CurrentAddress=@addr Selected="@(addr == SelectedAddress)" />
+            </div>
+        }
+    }
+}
+
+@code {
+    List<Project> Projects;
+    Project SelectedProject;
+    List<Address> Addresses;
+    Address SelectedAddress;
+    ProjectRoot GeneratedRoot;
+    bool ShowCreateForm = false;
+    string NewProjectName = string.Empty;
+    bool HasNoAddresses => Addresses == null || Addresses.Count == 0;
+    bool Spinning = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Projects = await Comms.Get();
+        Toast.ShowInfo($"retrieved {Projects.Count()} entries");
+    }
+
+    void ShowProjectCreation() => ShowCreateForm = true;
+
+    async void CreateProject()
+    {
+        if (string.IsNullOrEmpty(NewProjectName))
+        {
+            Toast.ShowWarning("Please, specify project name!");
+            return;
+        }
+        Spinning = true;
+        var newProject = await Comms.Create(NewProjectName);
+        Projects.Insert(0, newProject);
+        ShowCreateForm = false;
+        Spinning = false;
+        StateHasChanged();
+        NewProjectName = string.Empty;
+    }
+
+    async void SelectProject(Project p)
+    {
+        Spinning = true;
+        SelectedProject = p;
+        SelectedAddress = null;
+        GeneratedRoot = null;
+        Addresses = await Addr.Get(p.Id);
+        Spinning = false;
+        StateHasChanged();
+    }
+
+    async void BackToProjects()
+    {
+        SelectedProject = null;
+        Addresses = null;
+        StateHasChanged();
+    }
+
+    async void SelectAddress(Address a)
+    {
+        Console.WriteLine($"Select address: {a.Id}");
+        SelectedAddress = a;
+        StateHasChanged();
+    }
+
+    async Task AddAddress(string publicAddress)
+    {
+        Spinning = true;
+        var added = await Addr.Add(publicAddress, SelectedProject.Id);
+        SelectedAddress = null;
+        Addresses.Insert(0, added);
+        Spinning = false;
+    }
+
+    bool IsSelected(Address addr)
+    {
+        return addr == SelectedAddress;
+    }
+
+    async Task GenerateRoot()
+    {
+        Spinning = true;
+        Console.WriteLine($"call generate {SelectedProject.Id}");
+        GeneratedRoot = await Comms.Generate(SelectedProject.Id);
+        //GeneratedRoot = new ProjectRoot()
+        //    {
+        //        Cid = "cidcidcidcidcidcid",
+        //        Root = "4342245453454345453454"
+        //    };
+        Spinning = false;
+    }
 
 
-Welcome, %username%!
+    // ----
+    protected override void OnInitialized()
+    {
+        AppState.Statechanged += async (Source, Property) => await AppState_StateChanged(Source, Property);
+    }
 
-<ProjectComponent />
+    private async Task AppState_StateChanged(ComponentBase source, string Property)
+    {
+        if (source != this) await InvokeAsync(StateHasChanged);
+    }
+
+    void IDisposable.Dispose()
+    {
+        AppState.Statechanged -= async (Source, Property) => await AppState_StateChanged(Source, Property);
+    }
+}

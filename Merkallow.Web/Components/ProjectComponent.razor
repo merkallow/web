@@ -1,21 +1,20 @@
-﻿@inject IDoComms Comms
+﻿@inject IDoProjects Comms
 @inject IToastService Toast
 
-<div style="margin-top: 2rem; margin-bottom:2rem;">Get project from api:</div>
-@if(sample != null)
-{
-    <div>id: @sample.Id</div>
-    <div>name: @sample.Name</div>
-    <div>user: @sample.UserId</div>
-}
+<div>
+    <div>id: @CurrentProject.Id</div>
+    <div>name: @CurrentProject.Name</div>
+    <div>user: @CurrentProject.UserId</div>
+</div>
 
 
 @code {
-    Project sample;
+    [Parameter]
+    public Project CurrentProject { get; set; }
 
-    protected override async Task OnInitializedAsync()
-    {
-        sample = await Comms.GetProject(1);
-        Toast.ShowInfo($"retrieved: {sample.Name}");
-    }
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    CurrentProject = await Comms.GetProject(1);
+    //    Toast.ShowInfo($"retrieved: {CurrentProject.Name}");
+    //}
 }

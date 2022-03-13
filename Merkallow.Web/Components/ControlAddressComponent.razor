@@ -1,0 +1,64 @@
+﻿@inject IJSRuntime JS
+
+<div style="margin-bottom: 1rem;">
+    <div style="margin-top: 1rem; margin-bottom: 1rem;">
+        <input type="text" @bind-value=@PublicAddress class="address-input" @ref="AddressInput" id="addressinput" placeholder="address" />
+    </div>
+    <div style="margin-top: 1rem; margin-bottom: 1rem;">
+        <button class="btn btn-primary" @onclick="@(() => Add())"><span class="oi oi-plus" style="margin-right:.5rem; font-size: 14px;"></span>Add</button>
+        <button class="btn btn-secondary"><span class="oi oi-x" style="margin-right:.5rem; font-size: 14px;"></span>Clear</button>
+        <button class="btn btn-secondary" disabled=@NoSelectedItem><span class="oi oi-pencil" style="margin-right:.5rem; font-size: 14px;"></span>Update</button>
+        <button class="btn btn-secondary" disabled=@NoSelectedItem><span class="oi oi-trash" style="margin-right:.5rem; font-size: 14px;"></span>Delete</button>
+    </div>
+    <div><button class="btn btn-primary" @onclick="@(() => GenerateRoot())" disabled=@CannotGenerate><span class="oi oi-grid-four-up" style="margin-right:.5rem; font-size: 16px;"></span>Generate Tree</button></div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback GenerateEvt { get; set; }
+    [Parameter]
+    public Address SelectedAddress { get; set; }
+    [Parameter]
+    public EventCallback<Address> UpdateEvent { get; set; }
+    [Parameter]
+    public EventCallback<int> DeleteEvent { get; set; }
+    [Parameter]
+    public EventCallback<string> AddEvent { get; set; }
+    [Parameter]
+    public bool CannotGenerate { get; set; } = true;
+
+    public string PublicAddress { get; set; } = string.Empty;
+    ElementReference AddressInput;
+
+    bool NoSelectedItem => SelectedAddress == null;
+
+    async Task Add()
+    {
+        // @! do validation
+        await AddEvent.InvokeAsync(PublicAddress);
+        PublicAddress = string.Empty;
+        await AddressInput.FocusAsync();
+    }
+
+    async Task GenerateRoot()
+    {
+        await GenerateEvt.InvokeAsync();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        Console.WriteLine($"init control: {SelectedAddress?.PublicAddress}");
+        if (SelectedAddress != null)
+        {
+            Console.WriteLine("setting");
+            //PublicAddress = SelectedAddress.PublicAddress;
+        }
+        await AddressInput.FocusAsync();
+        await JS.InvokeAsync<object>("selectElement", "addressinput");
+        //return base.OnAfterRenderAsync(firstRender);
+    }
+}

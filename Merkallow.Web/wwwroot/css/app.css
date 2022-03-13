@@ -12,12 +12,6 @@ a, .btn-link {
     color: #0071c1;
 }
 
-.btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
-}
-
 .content {
     padding-top: 1.1rem;
 }
@@ -97,3 +91,202 @@ a, .btn-link {
     .blazored-toast-error .blazored-toast-heading {
         color: #101214;
     }*/
+
+
+.btn-primary {
+    background-color: #4c268acc;
+    border: 1px solid #5a349a88;
+    min-width: 5rem;
+}
+    .btn-primary:hover {
+        background-color: #5a349aff;
+        border: 1px solid #5a349a88;
+    }
+    .btn-primary:active {
+        background-color: #5a349aff;
+        border: 1px solid #5a349a88;
+    }
+    .btn-primary:focus {
+        background-color: #5a349aff;
+        border: 1px solid #5a349a88;
+    }
+    .btn-primary:disabled {
+        background-color: #49386266;
+        border: 1px solid #49386211;
+    }
+
+.btn-secondary {
+    background-color: #594872cc;
+    border: 1px solid #59487255;
+    min-width: 5rem;
+}
+
+    .btn-secondary:hover {
+        background-color: #3a2c4dcc;
+        border: 1px solid #594872cc;
+    }
+
+    .btn-secondary:active {
+        background-color: #3a2c4dcc;
+        border: 1px solid #594872cc;
+    }
+
+    .btn-secondary:focus {
+        background-color: #3a2c4dcc;
+        border: 1px solid #594872cc;
+    }
+    .btn-secondary:disabled {
+        background-color: #49386266;
+        border: 1px solid #49386211;
+    }
+
+.project-card {
+    border: 1px solid #6e1e9122;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: .6rem;
+    margin-bottom: .6rem;
+    padding: .6rem;
+    padding-left: 1.2rem;
+}
+
+    .project-card:hover {
+        background-color: #be9cf755;
+    }
+    .project-card:focus {
+        background-color: #be9cf777;
+    }
+    .project-card:active {
+        background-color: #be9cf777;
+    }
+.address-component {
+    margin-top: .1rem;
+    margin-top: .1rem;
+    padding: .2rem;
+    border: 1px dotted #be9cf755;
+    cursor: pointer;
+    border-radius: 4px;
+    padding-left: .6rem;
+}
+    .address-component:hover {
+        background-color: #be9cf755;
+    }
+
+.address-highlight {
+    background-color: #be9cf744;
+}
+    .address-highlight:focus {
+        background-color: #be9cf777;
+    }
+    .address-highlight:active {
+        background-color: #be9cf777
+    }
+
+.address-input {
+    background-color: #6e1e9111;
+    border-radius: 6px;
+    border: 1px solid #6e1e9188;
+    height: 2.4rem;
+    font-size: 18px;
+    color: #6e1e91ff;
+    width: 100%;
+    padding-left: .6rem;
+}
+
+.project-input {
+    background-color: #6e1e9111;
+    border-radius: 6px;
+    border: 1px solid #6e1e9188;
+    height: 2.4rem;
+    font-size: 18px;
+    color: #6e1e91ff;
+    min-width: 280px;
+    padding-left: .6rem;
+}
+
+.root-cid {
+    border: 1px solid #6e1e9199;
+    border-radius: 8px;
+    margin: 2rem;
+    padding: 1rem;
+    padding-left: 2rem;
+    background-color: #be9cf755;
+}
+
+
+
+
+
+
+.loader {
+    position: fixed;
+    left: calc(50% - 100px);
+    top: 30%;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    perspective: 800px;
+    /*transform: translate(-50%, -50%);*/
+}
+
+.inner {
+    position: absolute;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+}
+
+    .inner.one {
+        left: 0%;
+        top: 0%;
+        animation: rotate-one 1s linear infinite;
+        border-bottom: 3px solid #4c268acc;
+    }
+
+    .inner.two {
+        right: 0%;
+        top: 0%;
+        animation: rotate-two 1s linear infinite;
+        border-right: 3px solid #4c268acc;
+    }
+
+    .inner.three {
+        right: 0%;
+        bottom: 0%;
+        animation: rotate-three 1s linear infinite;
+        border-top: 3px solid #4c268acc;
+    }
+
+@keyframes rotate-one {
+    0% {
+        transform: rotateX(35deg) rotateY(-45deg) rotateZ(0deg);
+    }
+
+    100% {
+        transform: rotateX(35deg) rotateY(-45deg) rotateZ(360deg);
+    }
+}
+
+@keyframes rotate-two {
+    0% {
+        transform: rotateX(50deg) rotateY(10deg) rotateZ(0deg);
+    }
+
+    100% {
+        transform: rotateX(50deg) rotateY(10deg) rotateZ(360deg);
+    }
+}
+
+@keyframes rotate-three {
+    0% {
+        transform: rotateX(35deg) rotateY(55deg) rotateZ(0deg);
+    }
+
+    100% {
+        transform: rotateX(35deg) rotateY(55deg) rotateZ(360deg);
+    }
+}
+
+
+
