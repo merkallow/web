@@ -75,15 +75,14 @@ a, .btn-link {
 }
 
 .blazored-toast-info {
-    background-color: #8248e5;
+    background-color: #8248e5bb;
     color: #d7dada;
 }
 
     .blazored-toast-info .blazored-toast-heading {
-        background-color: #8248e5;
     }
 
-.blazored-toast-warning {
+/*.blazored-toast-warning {
     background-color: #f4d35e80;
 }
 
@@ -97,4 +96,4 @@ a, .btn-link {
 
     .blazored-toast-error .blazored-toast-heading {
         color: #101214;
-    }
+    }*/
