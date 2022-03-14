@@ -226,7 +226,6 @@ a, .btn-link {
     height: 200px;
     border-radius: 50%;
     perspective: 800px;
-    /*transform: translate(-50%, -50%);*/
 }
 
 .inner {

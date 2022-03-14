@@ -34,19 +34,13 @@
 
     async Task Add()
     {
-        // @! do validation
         await AddEvent.InvokeAsync(PublicAddress);
         PublicAddress = string.Empty;
-        //await AddressInput.FocusAsync();
     }
 
     async Task GenerateRoot()
     {
         await GenerateEvt.InvokeAsync();
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
