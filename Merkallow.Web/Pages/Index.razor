@@ -6,10 +6,16 @@
 @inject IToastService Toast
 @inject MetaMaskService Meta
 @inject AppState AppState
+@inject IJSRuntime JS
 @implements IDisposable
 
 
 <PageTitle>Merkallow</PageTitle>
+
+@*@if(AppState.AccountToShow().StartsWith("0x47b4"))
+{
+    <button class="btn btn-secondary" @onclick="@(() => DoTest())">Test</button>
+}*@
 
 @if(AppState.IsAuthenticated)
 {
@@ -271,15 +277,13 @@ else
         Spinning = true;
         Console.WriteLine($"call generate {SelectedProject.Id}");
         GeneratedRoot = await Comms.Generate(SelectedProject.Id);
-        //GeneratedRoot = new ProjectRoot()
-        //    {
-        //        Cid = "cidcidcidcidcidcid",
-        //        Root = "4342245453454345453454"
-        //    };
         Spinning = false;
     }
 
-
+    async Task DoTest()
+    {
+        await JS.InvokeVoidAsync("play");
+    }
 
     // ----
     protected override void OnInitialized()

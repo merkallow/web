@@ -40,3 +40,8 @@ function getCookie(name) {
 function eraseCookie(name) {
     document.cookie = name + '=; Max-Age=-99999999;';
 }
+
+function play() {
+    console.log("play js");
+    console.log(window.ethereum);
+}
