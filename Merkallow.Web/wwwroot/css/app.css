@@ -76,21 +76,21 @@ a, .btn-link {
     .blazored-toast-info .blazored-toast-heading {
     }
 
-/*.blazored-toast-warning {
-    background-color: #f4d35e80;
+.blazored-toast-warning {
+    background-color: #ff8500c0;
 }
 
     .blazored-toast-warning .blazored-toast-heading {
-        color: #ee725a;
+        color: #ffda73c0;
     }
 
 .blazored-toast-error {
-    background-color: #ee725a95;
+    background-color: #8b1700b9;
 }
 
     .blazored-toast-error .blazored-toast-heading {
-        color: #101214;
-    }*/
+        color: #6c1d1d;
+    }
 
 
 .btn-primary {
