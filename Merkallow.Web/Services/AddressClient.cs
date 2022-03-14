@@ -42,7 +42,7 @@ namespace Merkallow.Web.Services
         {
             var uri = _apiUrl + $"/addresses/{projectId}";
             Console.WriteLine($"callin: {uri}");
-            var request = new AddAddressRequest() { Addresses = new string[] { address } };
+            var request = new AddAddressRequest() { Addresses = new string[] { address.ToLower() } };
 
             var result = await _http.PostAsJsonAsync<AddAddressRequest>(uri, request);
 
@@ -75,7 +75,7 @@ namespace Merkallow.Web.Services
             var uri = _apiUrl + $"/addresses/{addressId}";
             Console.WriteLine($"callin: {uri}");
 
-            var request = new UpdateAddressRequest() { Address = address };
+            var request = new UpdateAddressRequest() { Address = address.ToLower() };
             var result = await _http.PutAsJsonAsync<UpdateAddressRequest>(uri, request);
 
             if (result.IsSuccessStatusCode)

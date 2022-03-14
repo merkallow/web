@@ -102,6 +102,7 @@ else
                              SelectedAddress=@SelectedAddress
                              AddEvent=@AddAddress
                              DeleteEvent=@DeleteAddress
+                             UpdateEvent=@UpdateAddress
                              CannotGenerate=@HasNoAddresses />
     </div>
 
@@ -291,11 +292,21 @@ else
 
     async Task DeleteAddress(Address address)
     {
-        Console.WriteLine("removing");
         if(await Addr.Delete(address.Id))
         {
             Addresses.Remove(address);
-            Console.WriteLine("removed");
+            StateHasChanged();
+        }
+    }
+
+    async Task UpdateAddress(Address address)
+    {
+        Console.WriteLine($"updating: {address.PublicAddress}");
+        if(await Addr.Update(address.PublicAddress, address.Id))
+        {
+            var i = Addresses.Select((o, i) => new { o, i}).Where(x => x.o.Id == address.Id).FirstOrDefault().i;
+            Addresses[i] = address;
+            Console.WriteLine("updated");
             StateHasChanged();
         }
     }

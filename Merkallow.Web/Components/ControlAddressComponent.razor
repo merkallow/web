@@ -1,4 +1,5 @@
 ﻿@inject IJSRuntime JS
+@inject IToastService Toast
 
 <div style="margin-bottom: 1rem;">
     <div style="margin-top: 1rem; margin-bottom: 1rem;">
@@ -6,8 +7,8 @@
     </div>
     <div style="margin-top: 1rem; margin-bottom: 1rem;">
         <button class="btn btn-primary" @onclick="@(() => Add())"><span class="oi oi-plus" style="margin-right:.5rem; font-size: 14px;"></span>Add</button>
-        <button class="btn btn-secondary"><span class="oi oi-x" style="margin-right:.5rem; font-size: 14px;"></span>Clear</button>
-        <button class="btn btn-secondary" disabled=@NoSelectedItem><span class="oi oi-pencil" style="margin-right:.5rem; font-size: 14px;"></span>Update</button>
+        <button class="btn btn-secondary" @onclick="@(() => Clear())"><span class="oi oi-x" style="margin-right:.5rem; font-size: 14px;"></span>Clear</button>
+        <button class="btn btn-secondary" @onclick="@(() => Update())" disabled=@NoSelectedItem><span class="oi oi-pencil" style="margin-right:.5rem; font-size: 14px;"></span>Update</button>
         <button class="btn btn-secondary" @onclick="@(() => Delete())" disabled=@NoSelectedItem><span class="oi oi-trash" style="margin-right:.5rem; font-size: 14px;"></span>Delete</button>
     </div>
     <div><button class="btn btn-primary" @onclick="@(() => GenerateRoot())" disabled=@CannotGenerate><span class="oi oi-grid-four-up" style="margin-right:.5rem; font-size: 16px;"></span>Generate Tree</button></div>
@@ -32,6 +33,11 @@
 
     bool NoSelectedItem => SelectedAddress == null;
 
+    async Task Clear()
+    {
+        PublicAddress = string.Empty;
+    }
+
     async Task Add()
     {
         await AddEvent.InvokeAsync(PublicAddress);
@@ -41,6 +47,20 @@
     async Task Delete()
     {
         await DeleteEvent.InvokeAsync(SelectedAddress);
+    }
+
+    async Task Update()
+    {
+        if(PublicAddress.IsValidAddress())
+        {
+            SelectedAddress.PublicAddress = PublicAddress;
+            await UpdateEvent.InvokeAsync(SelectedAddress);
+            PublicAddress = string.Empty;
+        }
+        else
+        {
+            Toast.ShowWarning("Please, enter correct Ethereum address");
+        }
     }
 
     async Task GenerateRoot()
