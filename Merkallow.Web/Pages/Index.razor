@@ -101,6 +101,7 @@ else
         <ControlAddressComponent GenerateEvt=@GenerateRoot
                              SelectedAddress=@SelectedAddress
                              AddEvent=@AddAddress
+                             DeleteEvent=@DeleteAddress
                              CannotGenerate=@HasNoAddresses />
     </div>
 
@@ -288,9 +289,15 @@ else
         Spinning = false;
     }
 
-    async Task DeleteAddress(Address addr)
+    async Task DeleteAddress(Address address)
     {
-        await Addr.Delete(addr.Id);
+        Console.WriteLine("removing");
+        if(await Addr.Delete(address.Id))
+        {
+            Addresses.Remove(address);
+            Console.WriteLine("removed");
+            StateHasChanged();
+        }
     }
 
     async Task DoTest()

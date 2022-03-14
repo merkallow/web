@@ -8,7 +8,7 @@
         <button class="btn btn-primary" @onclick="@(() => Add())"><span class="oi oi-plus" style="margin-right:.5rem; font-size: 14px;"></span>Add</button>
         <button class="btn btn-secondary"><span class="oi oi-x" style="margin-right:.5rem; font-size: 14px;"></span>Clear</button>
         <button class="btn btn-secondary" disabled=@NoSelectedItem><span class="oi oi-pencil" style="margin-right:.5rem; font-size: 14px;"></span>Update</button>
-        <button class="btn btn-secondary" disabled=@NoSelectedItem><span class="oi oi-trash" style="margin-right:.5rem; font-size: 14px;"></span>Delete</button>
+        <button class="btn btn-secondary" @onclick="@(() => Delete())" disabled=@NoSelectedItem><span class="oi oi-trash" style="margin-right:.5rem; font-size: 14px;"></span>Delete</button>
     </div>
     <div><button class="btn btn-primary" @onclick="@(() => GenerateRoot())" disabled=@CannotGenerate><span class="oi oi-grid-four-up" style="margin-right:.5rem; font-size: 16px;"></span>Generate Tree</button></div>
 </div>
@@ -21,7 +21,7 @@
     [Parameter]
     public EventCallback<Address> UpdateEvent { get; set; }
     [Parameter]
-    public EventCallback<int> DeleteEvent { get; set; }
+    public EventCallback<Address> DeleteEvent { get; set; }
     [Parameter]
     public EventCallback<string> AddEvent { get; set; }
     [Parameter]
@@ -36,6 +36,11 @@
     {
         await AddEvent.InvokeAsync(PublicAddress);
         PublicAddress = string.Empty;
+    }
+
+    async Task Delete()
+    {
+        await DeleteEvent.InvokeAsync(SelectedAddress);
     }
 
     async Task GenerateRoot()
