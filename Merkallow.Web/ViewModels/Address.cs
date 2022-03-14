@@ -11,4 +11,9 @@
     {
         public string[] Addresses { get; set; }
     }
+
+    public class UpdateAddressRequest
+    {
+        public string Address { get; set; }
+    }
 }

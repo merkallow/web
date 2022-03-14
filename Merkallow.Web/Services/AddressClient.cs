@@ -10,6 +10,7 @@ namespace Merkallow.Web.Services
         Task<List<Address>> Get(int id);
         Task<Address> Add(string address, int projectId);
         Task<bool> Delete(int addressId);
+        Task<bool> Update(string address, int addressId);
     }
 
     public class AddressClient : IDoAddresses
@@ -63,6 +64,19 @@ namespace Merkallow.Web.Services
             Console.WriteLine($"callin: {uri}");
 
             var result = await _http.DeleteAsync(uri);
+
+            if (result.IsSuccessStatusCode)
+                return true;
+            else return false;
+        }
+
+        public async Task<bool> Update(string address, int addressId)
+        {
+            var uri = _apiUrl + $"/addresses/{addressId}";
+            Console.WriteLine($"callin: {uri}");
+
+            var request = new UpdateAddressRequest() { Address = address };
+            var result = await _http.PutAsJsonAsync<UpdateAddressRequest>(uri, request);
 
             if (result.IsSuccessStatusCode)
                 return true;
