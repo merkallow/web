@@ -67,15 +67,17 @@ else if (SelectedProject == null)
         </div>
     }
 
-    @if (Projects != null)
-    {
-        foreach (var prj in Projects)
+    <div class="d-flex flex-sm-wrap">
+        @if (Projects != null)
         {
-            <div @onclick="@(() => SelectProject(prj))" class="project-card">
-                <ProjectComponent CurrentProject=prj />
-            </div>
+            foreach (var prj in Projects)
+            {
+                <div @onclick="@(() => SelectProject(prj))" class="project-card">
+                    <ProjectComponent CurrentProject=prj />
+                </div>
+            }
         }
-    }
+    </div>
 }
 else
 {
