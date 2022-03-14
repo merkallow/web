@@ -288,6 +288,11 @@ else
         Spinning = false;
     }
 
+    async Task DeleteAddress(Address addr)
+    {
+        await Addr.Delete(addr.Id);
+    }
+
     async Task DoTest()
     {
         await JS.InvokeVoidAsync("showAlert", "123");

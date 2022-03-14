@@ -9,7 +9,7 @@ namespace Merkallow.Web.Services
     {
         Task<List<Address>> Get(int id);
         Task<Address> Add(string address, int projectId);
-        Task<bool> Delete(string addressId);
+        Task<bool> Delete(int addressId);
     }
 
     public class AddressClient : IDoAddresses
@@ -57,7 +57,7 @@ namespace Merkallow.Web.Services
             return resultAddress;
         }
 
-        public async Task<bool> Delete(string addressId)
+        public async Task<bool> Delete(int addressId)
         {
             var uri = _apiUrl + $"/addresses/{addressId}";
             Console.WriteLine($"callin: {uri}");
