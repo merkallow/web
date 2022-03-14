@@ -15,8 +15,8 @@
 @*@if(AppState.AccountToShow().StartsWith("0x47b4"))
 {
     <button class="btn btn-secondary" @onclick="@(() => DoTest())">Test</button>
-}*@
-
+}
+*@
 @if(AppState.IsAuthenticated)
 {
     <div style="margin-bottom: .5rem;">Welcome, <span style="color: #5a349aff; font-weight:bold;">@AppState.AccountToShow()</span></div>
@@ -104,7 +104,7 @@ else
                              CannotGenerate=@HasNoAddresses />
     </div>
 
-    <h4>Whitelist:</h4>
+    <h4>Whitelist: @(Addresses?.Count ?? 0)</h4>
 
     @if (Addresses != null && Addresses.Count > 0)
     {
@@ -290,7 +290,7 @@ else
 
     async Task DoTest()
     {
-        await JS.InvokeVoidAsync("play");
+        await JS.InvokeVoidAsync("showAlert", "123");
     }
 
     // ----
