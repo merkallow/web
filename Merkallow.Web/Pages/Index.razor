@@ -188,7 +188,11 @@ else
         Console.WriteLine($"ChainID: {AppState.ChainId}");
         StateHasChanged();
 
-        if(AppState.ChainId != CFG.NetworkId)
+        if(AppState.ChainId == CFG.NetworkId)
+        {
+            Toast.ShowInfo($"Authenticated on: {NetworksList.Networks[AppState.ChainId]}");
+        }
+        else
         {
             Toast.ShowWarning($"Please, connect to chain: {NetworksList.Networks[CFG.NetworkId]}");
         }
