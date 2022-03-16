@@ -11,7 +11,13 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
-var config = new ClientConfig() { ApiUrl = builder.Configuration["ApiUrl"] };
+long netId = 1;
+long.TryParse(builder.Configuration["NetworkId"], out netId);
+
+var config = new ClientConfig() { 
+    ApiUrl = builder.Configuration["ApiUrl"] ?? "https://merkallow.azurewebsites.net/api",
+    NetworkId = netId,
+    };
 
 builder.Services.AddSingleton<ClientConfig>(config);
 builder.Services.AddScoped<IDoProjects, ProjectsClient>();
