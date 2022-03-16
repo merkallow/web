@@ -27,7 +27,7 @@
 {
     <Spinner />
 }
-@if (string.IsNullOrEmpty(AppState.AccountId))
+@if (AppState.IsAuthenticated)
 {
     <div>
         <div class="d-flex justify-content-center">
@@ -133,6 +133,8 @@ else
     void ShowProjectCreation() => ShowCreateForm = true;
     bool HasMetaMask = true;
 
+    bool ProperChain => AppState.ChainId == CFG.NetworkId;
+
     protected override async Task OnInitializedAsync()
     {
         Projects = await Comms.Get();
@@ -188,7 +190,7 @@ else
         Console.WriteLine($"ChainID: {AppState.ChainId}");
         StateHasChanged();
 
-        if(AppState.ChainId == CFG.NetworkId)
+        if(ProperChain)
         {
             Toast.ShowInfo($"Authenticated on: {NetworksList.Networks[AppState.ChainId]}");
         }
