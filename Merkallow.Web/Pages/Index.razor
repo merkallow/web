@@ -49,7 +49,9 @@
 }
 else if(!ProperChain)
 {
-    <div>Please, select proper chain</div>
+    <div>Please, select <span style="color: #5a349aff; font-weight:bold">@NeededChain</span> chain</div>
+    @* <button class="btn btn-primary">Open MetaMask</button> *@
+    @* await ethereum.request({ method: 'eth_requestAccounts' }); *@
 }
 else if (SelectedProject == null)
 {
@@ -135,7 +137,8 @@ else
     bool Spinning = false;
     void ShowProjectCreation() => ShowCreateForm = true;
     bool HasMetaMask = true;
-
+    
+    string NeededChain => NetworksList.Networks[CFG.NetworkId];
     bool ProperChain => AppState.ChainId == CFG.NetworkId;
 
     protected override async Task OnInitializedAsync()
