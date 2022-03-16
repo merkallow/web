@@ -174,24 +174,18 @@ else
 
     public async Task GetSelectedAddress()
     {
-        await GetCurrentConnection();
-        StateHasChanged();
-    }
-
-    public async Task GetCurrentConnection()
-    {
         var address = await Meta.GetSelectedAddress();
         AppState.SetAccount(this, address);
-        var chainInfo = await Meta.GetSelectedChain();
-
-        Console.WriteLine($"ChainID: {AppState.ChainId}");
-        AppState.SetChain(this, chainInfo.chainId);
         StateHasChanged();
     }
 
     public async Task GetSelectedNetwork()
     {
-        await GetCurrentConnection();
+        var chainInfo = await Meta.GetSelectedChain();
+
+        AppState.SetChain(this, chainInfo.chainId);
+        Console.WriteLine($"ChainID: {AppState.ChainId}");
+        StateHasChanged();
     }
 
     async Task Authenticate()
