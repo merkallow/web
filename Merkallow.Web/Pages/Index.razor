@@ -7,6 +7,7 @@
 @inject MetaMaskService Meta
 @inject AppState AppState
 @inject IJSRuntime JS
+@inject ClientConfig CFG
 @implements IDisposable
 
 
@@ -186,6 +187,11 @@ else
         AppState.SetChain(this, chainInfo.chainId);
         Console.WriteLine($"ChainID: {AppState.ChainId}");
         StateHasChanged();
+
+        if(AppState.ChainId != CFG.NetworkId)
+        {
+            Toast.ShowWarning($"Please, connect to chain: {NetworksList.Networks[CFG.NetworkId]}");
+        }
     }
 
     async Task Authenticate()
