@@ -6,8 +6,8 @@
 @inject IToastService Toast
 @inject MetaMaskService Meta
 @inject AppState AppState
-@inject IJSRuntime JS
 @inject ClientConfig CFG
+@inject IJSRuntime JS
 @implements IDisposable
 
 
@@ -50,7 +50,7 @@
 else if(!ProperChain)
 {
     <div>Please, select <span style="color: #5a349aff; font-weight:bold">@NeededChain</span> chain</div>
-    @* <button class="btn btn-primary">Open MetaMask</button> *@
+    <button class="btn btn-primary" @onclick="@(() => SwitchChain())">Open MetaMask</button>
     @* await ethereum.request({ method: 'eth_requestAccounts' }); *@
 }
 else if (SelectedProject == null)
@@ -317,6 +317,12 @@ else
             Console.WriteLine("updated");
             StateHasChanged();
         }
+    }
+
+    async Task SwitchChain()
+    {
+        var toChain = "0x" + CFG.NetworkId.ToString("X");
+        await JS.InvokeVoidAsync("switchChain", toChain);
     }
 
     async Task DoTest()
