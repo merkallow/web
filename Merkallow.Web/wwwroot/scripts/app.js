@@ -1,4 +1,16 @@
-﻿////import makeBlockie from 'blockies';
+﻿// console.log('executing js');
+////import makeBlockie from 'blockies';
+
+
+
+window.switchChain = async function(chainId) {
+    console.log('hz');
+        await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: chainId }],
+    });
+}
+
 
 function showAlert(message) {
     alert(message);
@@ -43,15 +55,10 @@ function eraseCookie(name) {
     document.cookie = name + '=; Max-Age=-99999999;';
 }
 
-function play(test) {
-    console.log("play js", test);
-    console.log(window.ethereum);
-}
+// function setBlockie() {
+//     console.log("setting blockie");
+//     const img = new Image();
+//     img.src = makeBlockie('0x7cB57B5A97eAbe94205C07890BE4c1aD31E486A8');
 
-function setBlockie() {
-    console.log("setting blockie");
-    const img = new Image();
-    img.src = makeBlockie('0x7cB57B5A97eAbe94205C07890BE4c1aD31E486A8');
-
-    //document.body.appendChild(img);
-}
+//     //document.body.appendChild(img);
+// }
