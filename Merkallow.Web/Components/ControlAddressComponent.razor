@@ -40,8 +40,15 @@
 
     async Task Add()
     {
-        await AddEvent.InvokeAsync(PublicAddress);
-        PublicAddress = string.Empty;
+        if(PublicAddress.IsValidAddress())
+        {
+            await AddEvent.InvokeAsync(PublicAddress);
+            PublicAddress = string.Empty;
+        }
+        else
+        {
+            Toast.ShowWarning("Please, enter correct Ethereum address");
+        }
     }
 
     async Task Delete()
