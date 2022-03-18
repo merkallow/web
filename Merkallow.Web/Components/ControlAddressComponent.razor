@@ -3,7 +3,7 @@
 
 <div style="margin-bottom: 1rem;">
     <div style="margin-top: 1rem; margin-bottom: 1rem;">
-        <input type="text" @bind-value=@PublicAddress class="address-input" @ref="AddressInput" id="addressinput" placeholder="input address" />
+        <input type="text" @bind-value=PublicAddress class="address-input" @ref="AddressInput" id="addressinput" placeholder="input address" />
     </div>
     <div style="margin-top: 1rem; margin-bottom: 1rem;">
         <button class="btn btn-primary" @onclick="@(() => Add())"><span class="oi oi-plus" style="margin-right:.5rem; font-size: 14px;"></span>Add</button>
@@ -29,6 +29,7 @@
     public bool CannotGenerate { get; set; } = true;
 
     public string PublicAddress { get; set; } = string.Empty;
+    public long EditingAddressId { get; set; } = -1;
     ElementReference AddressInput;
 
     bool NoSelectedItem => SelectedAddress == null;
@@ -40,7 +41,7 @@
 
     async Task Add()
     {
-        if(PublicAddress.IsValidAddress())
+        if (PublicAddress.IsValidAddress())
         {
             await AddEvent.InvokeAsync(PublicAddress);
             PublicAddress = string.Empty;
@@ -58,7 +59,7 @@
 
     async Task Update()
     {
-        if(PublicAddress.IsValidAddress())
+        if (PublicAddress.IsValidAddress())
         {
             SelectedAddress.PublicAddress = PublicAddress;
             await UpdateEvent.InvokeAsync(SelectedAddress);
@@ -68,6 +69,8 @@
         {
             Toast.ShowWarning("Please, enter correct Ethereum address");
         }
+        SelectedAddress = null;
+        StateHasChanged();
     }
 
     async Task GenerateRoot()
@@ -77,10 +80,13 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Console.WriteLine($"init control: {SelectedAddress?.PublicAddress}");
-        if (SelectedAddress != null)
+        //Console.WriteLine($"init control: {firstRender} {SelectedAddress?.PublicAddress}");
+        if (SelectedAddress != null && EditingAddressId != SelectedAddress.Id)
         {
-            Console.WriteLine("setting");
+            Console.WriteLine($"setting: {firstRender} {SelectedAddress?.PublicAddress}");
+            PublicAddress = SelectedAddress?.PublicAddress;
+            EditingAddressId = SelectedAddress.Id;
+            StateHasChanged();
         }
         await AddressInput.FocusAsync();
         await JS.InvokeAsync<object>("selectElement", "addressinput");
