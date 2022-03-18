@@ -8,7 +8,7 @@ namespace Merkallow.Web.Services
     public interface IDoAddresses
     {
         Task<List<Address>> Get(int id);
-        Task<Address> Add(string address, int projectId);
+        Task<List<Address>> Add(string address, int projectId);
         Task<bool> Delete(int addressId);
         Task<bool> Update(string address, int addressId);
     }
@@ -38,7 +38,7 @@ namespace Merkallow.Web.Services
             return data.ToList();
         }
 
-        public async Task<Address> Add(string address, int projectId)
+        public async Task<List<Address>> Add(string address, int projectId)
         {
             var uri = _apiUrl + $"/addresses/{projectId}";
             Console.WriteLine($"callin: {uri}");
@@ -47,14 +47,7 @@ namespace Merkallow.Web.Services
             var result = await _http.PostAsJsonAsync<AddAddressRequest>(uri, request);
 
             var content = await result.Content.ReadAsStringAsync();
-            var data = JsonSerializer.Deserialize<int>(content, new JsonSerializerOptions(JsonSerializerDefaults.Web));
-
-            var resultAddress = new Address()
-            {
-                Id = 0,
-                ProjectId = projectId,
-                PublicAddress = address
-            };
+            var resultAddress = JsonSerializer.Deserialize<List<Address>>(content, new JsonSerializerOptions(JsonSerializerDefaults.Web));
             return resultAddress;
         }
 

@@ -137,7 +137,7 @@ else
     bool Spinning = false;
     void ShowProjectCreation() => ShowCreateForm = true;
     bool HasMetaMask = true;
-    
+
     string NeededChain => NetworksList.Networks[CFG.NetworkId];
     bool ProperChain => AppState.ChainId == CFG.NetworkId;
 
@@ -281,7 +281,7 @@ else
         Spinning = true;
         var added = await Addr.Add(publicAddress, SelectedProject.Id);
         SelectedAddress = null;
-        Addresses.Insert(0, added);
+        Addresses.InsertRange(0, added);
         Spinning = false;
     }
 
