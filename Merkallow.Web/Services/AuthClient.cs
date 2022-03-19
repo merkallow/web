@@ -104,8 +104,11 @@ namespace Merkallow.Web.Services
 
         public async Task<User> Update(User user)
         {
-
-            var uri = new UriBuilder(_apiUrl + "/users").ToString();
+            var builder = new UriBuilder(_apiUrl + "/users");
+            var query = HttpUtility.ParseQueryString(builder.Query);
+            query["publicAddress"] = user.PublicAddress;
+            builder.Query = query.ToString();
+            string uri = builder.ToString();
 
 
             // PATCH User
@@ -131,6 +134,11 @@ namespace Merkallow.Web.Services
 
             Console.WriteLine($"updated: {data.Id} {data.Nonce} {data.Username}");
             return data;
+        }
+
+        public async Task CallAuthenticate()
+        {
+
         }
     }
 }
