@@ -22,9 +22,11 @@ var config = new ClientConfig() {
 builder.Services.AddSingleton<ClientConfig>(config);
 builder.Services.AddScoped<IDoProjects, ProjectsClient>();
 builder.Services.AddScoped<IDoAddresses, AddressClient>();
+builder.Services.AddScoped<IAuthenticate, AuthClient>();
 builder.Services.AddScoped<AppState>();
 
 builder.Services.AddBlazoredToast();
 builder.Services.AddMetaMaskBlazor();
 
 await builder.Build().RunAsync();
+
