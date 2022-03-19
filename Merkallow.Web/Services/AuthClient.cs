@@ -9,7 +9,9 @@ namespace Merkallow.Web.Services
 
     public interface IAuthenticate
     {
-        Task<User[]> GetUser(string id);
+        Task<User[]> FindUser(string id);
+        // authorized
+        Task<User[]> GetUser(string address);
         Task<User> CreateUser(string address);
     }
     public class AuthClient : IAuthenticate
@@ -28,10 +30,8 @@ namespace Merkallow.Web.Services
             _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
         }
 
-        public async Task<User[]> GetUser(string address)
+        public async Task<User[]> FindUser(string address)
         {
-            //var uri = _apiUrl + $"/auth?publicAddress={address}";
-
             var builder = new UriBuilder(_apiUrl + "/users");
             var query = HttpUtility.ParseQueryString(builder.Query);
             query["publicAddress"] = address;
@@ -45,6 +45,30 @@ namespace Merkallow.Web.Services
             {
                 Console.WriteLine("got: ");
                 foreach(var user in data)
+                {
+                    Console.WriteLine($"user: {user.Id} {user.PublicAddress}");
+                }
+            }
+            else { Console.WriteLine("No such user there"); }
+            return data;
+        }
+
+        public async Task<User[]> GetUser(string address)
+        {
+            var builder = new UriBuilder(_apiUrl + "/users");
+            var query = HttpUtility.ParseQueryString(builder.Query);
+            query["publicAddress"] = address;
+            builder.Query = query.ToString();
+            string uri = builder.ToString();
+
+
+            Console.WriteLine($"callin: {uri}");
+            var data = await _http.GetFromJsonAsync<User[]>(uri);
+
+            if (data.Length > 0)
+            {
+                Console.WriteLine("got: ");
+                foreach (var user in data)
                 {
                     Console.WriteLine($"user: {user.Id} {user.PublicAddress}");
                 }
@@ -74,5 +98,7 @@ namespace Merkallow.Web.Services
             Console.WriteLine($"created: {data.Id} {data.Nonce} {data.Username}");
             return data;
         }
+
+        
     }
 }
