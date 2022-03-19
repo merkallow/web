@@ -1,6 +1,7 @@
 ﻿using Blazored.Toast.Services;
 using Merkallow.Web.ViewModels;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Web;
 
@@ -13,6 +14,8 @@ namespace Merkallow.Web.Services
         // authorized
         Task<User[]> GetUser(string address);
         Task<User> CreateUser(string address);
+        // authorized
+        Task<User> Update(User user);
     }
     public class AuthClient : IAuthenticate
     {
@@ -99,6 +102,35 @@ namespace Merkallow.Web.Services
             return data;
         }
 
-        
+        public async Task<User> Update(User user)
+        {
+
+            var uri = new UriBuilder(_apiUrl + "/users").ToString();
+
+
+            // PATCH User
+
+            Console.WriteLine($"callin: {uri}");
+            //var result = await _http.PatchAsync<User>(uri, user);
+
+            //var content = await result.Content.ReadAsStringAsync();
+            //var data = JsonSerializer.Deserialize<User>(content, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+
+
+            var content = new StringContent(
+                JsonSerializer.Serialize<User>(user),
+                //JsonConvert.SerializeObject(value, settings ?? JsonSettings),
+                Encoding.UTF8,
+                "application/json");
+
+            var result =  await _http.PatchAsync(uri, content).ConfigureAwait(false);
+            //var data = JsonSerializer.Deserialize<User>(result., new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            var test = await result.Content.ReadAsStreamAsync();
+            var data = JsonSerializer.Deserialize<User>(test, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+            Console.WriteLine($"updated: {data.Id} {data.Nonce} {data.Username}");
+            return data;
+        }
     }
 }
