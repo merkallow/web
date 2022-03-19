@@ -10,6 +10,7 @@ namespace Merkallow.Web.Services
     public interface IAuthenticate
     {
         Task<User[]> GetUser(string id);
+        Task<User> CreateUser(string address);
     }
     public class AuthClient : IAuthenticate
     {
@@ -40,7 +41,37 @@ namespace Merkallow.Web.Services
 
             Console.WriteLine($"callin: {uri}");
             var data = await _http.GetFromJsonAsync<User[]>(uri);
-            Console.WriteLine($"got: {data.First().Id} {data.First().Nonce} {data.First().Username}");
+            if(data.Length > 0)
+            {
+                Console.WriteLine("got: ");
+                foreach(var user in data)
+                {
+                    Console.WriteLine($"user: {user.Id} {user.PublicAddress}");
+                }
+            }
+            else { Console.WriteLine("No such user there"); }
+            return data;
+        }
+
+        public async Task<User> CreateUser(string address)
+        {
+            var builder = new UriBuilder(_apiUrl + "/users");
+            var query = HttpUtility.ParseQueryString(builder.Query);
+            query["publicAddress"] = address;
+            builder.Query = query.ToString();
+            string uri = builder.ToString();
+
+
+            var user = new User() { PublicAddress = address, Nonce = new Random().Next(1000, 9999) };
+            // POST User
+
+            Console.WriteLine($"callin: {uri}");
+            var result = await _http.PostAsJsonAsync<User>(uri, user);
+             
+            var content = await result.Content.ReadAsStringAsync();
+            var data = JsonSerializer.Deserialize<User>(content, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+            Console.WriteLine($"created: {data.Id} {data.Nonce} {data.Username}");
             return data;
         }
     }
