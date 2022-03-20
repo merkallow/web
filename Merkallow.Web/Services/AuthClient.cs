@@ -33,7 +33,6 @@ namespace Merkallow.Web.Services
             _appState = state;
             _toast = toast;
             _http = new HttpClient();
-            _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
             _js = JS;
         }
 
@@ -63,6 +62,7 @@ namespace Merkallow.Web.Services
         // Authorized
         public async Task<User[]> GetUser(string address)
         {
+            _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
             var builder = new UriBuilder(_apiUrl + "/users");
             var query = HttpUtility.ParseQueryString(builder.Query);
             query["publicAddress"] = address;
