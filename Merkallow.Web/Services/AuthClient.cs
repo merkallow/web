@@ -16,6 +16,7 @@ namespace Merkallow.Web.Services
         Task<User> CreateUser(string address);
         // authorized
         Task<User> Update(User user);
+        Task<string> CallAuthenticate();
     }
     public class AuthClient : IAuthenticate
     {
@@ -73,7 +74,7 @@ namespace Merkallow.Web.Services
                 Console.WriteLine("got: ");
                 foreach (var user in data)
                 {
-                    Console.WriteLine($"user: {user.Id} {user.PublicAddress}");
+                    Console.WriteLine($"user: {user.Id} - {user.Nonce} - {user.PublicAddress}");
                 }
             }
             else { Console.WriteLine("No such user there"); }
@@ -112,14 +113,10 @@ namespace Merkallow.Web.Services
 
 
             // PATCH User
-
             Console.WriteLine($"callin: {uri}");
             //var result = await _http.PatchAsync<User>(uri, user);
-
             //var content = await result.Content.ReadAsStringAsync();
             //var data = JsonSerializer.Deserialize<User>(content, new JsonSerializerOptions(JsonSerializerDefaults.Web));
-
-
 
             var content = new StringContent(
                 JsonSerializer.Serialize<User>(user),
@@ -128,17 +125,16 @@ namespace Merkallow.Web.Services
                 "application/json");
 
             var result =  await _http.PatchAsync(uri, content).ConfigureAwait(false);
-            //var data = JsonSerializer.Deserialize<User>(result., new JsonSerializerOptions(JsonSerializerDefaults.Web));
-            var test = await result.Content.ReadAsStreamAsync();
-            var data = JsonSerializer.Deserialize<User>(test, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            var stream = await result.Content.ReadAsStreamAsync();
+            var data = JsonSerializer.Deserialize<User>(stream, new JsonSerializerOptions(JsonSerializerDefaults.Web));
 
             Console.WriteLine($"updated: {data.Id} {data.Nonce} {data.Username}");
             return data;
         }
 
-        public async Task CallAuthenticate()
+        public async Task<string> CallAuthenticate()
         {
-
+            throw new NotImplementedException();
         }
     }
 }

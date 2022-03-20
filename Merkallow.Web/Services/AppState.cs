@@ -7,7 +7,7 @@ namespace Merkallow.Web.Services
         public string AccountId { get; private set; }
         public long ChainId { get; private set; }
 
-        public string BearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7ImlkIjozLCJwdWJsaWNBZGRyZXNzIjoiMHg0N2I0MDE2MGY3MmM0MzIxZTA4ZGU4Yjk1ZTI2MmU5MDJjOTkxY2QzIn0sImlhdCI6MTY0NzEzNjE1Nn0.sjxSBNzDCuSCPH1vYGOBwVfaDCkB0E-inbWH6VBN8Rw";
+        public string BearerToken { get; private set; } // = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7ImlkIjozLCJwdWJsaWNBZGRyZXNzIjoiMHg0N2I0MDE2MGY3MmM0MzIxZTA4ZGU4Yjk1ZTI2MmU5MDJjOTkxY2QzIn0sImlhdCI6MTY0NzEzNjE1Nn0.sjxSBNzDCuSCPH1vYGOBwVfaDCkB0E-inbWH6VBN8Rw";
         public bool IsAuthenticated => !string.IsNullOrEmpty(AccountId);
         public string AccountToShow()
         {
@@ -27,6 +27,12 @@ namespace Merkallow.Web.Services
         {
             this.ChainId = chainId;
             NotifyStateChanged(source, "ChainId");
+        }
+
+        public void SetToken(ComponentBase source, string accessToken)
+        {
+            this.BearerToken = accessToken;
+            NotifyStateChanged(source, "BearerToken");
         }
 
 
