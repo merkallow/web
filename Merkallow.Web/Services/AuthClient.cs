@@ -156,6 +156,11 @@ namespace Merkallow.Web.Services
             var content = await result.Content.ReadAsStringAsync();
             var tokenResult = JsonSerializer.Deserialize<Token>(content, new JsonSerializerOptions(JsonSerializerDefaults.Web));
 
+            if(!string.IsNullOrEmpty(tokenResult?.AccessToken))
+            {
+                await _js.InvokeVoidAsync("setCookie", "token", tokenResult.AccessToken);
+            }
+
             return tokenResult.AccessToken;
         }
     }
