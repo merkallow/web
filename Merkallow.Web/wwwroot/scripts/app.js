@@ -4,11 +4,23 @@
 
 
 window.switchChain = async function(chainId) {
-    console.log('hz');
+    console.log('switch chain called');
         await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: chainId }],
     });
+}
+
+window.sign = async function (nonce, address) {
+    console.log('signing called');
+
+    return await window.ethereum.request({
+        method: 'personal_sign',
+        params: ['I am signing my one-time nonce: ' + nonce, address]
+    })
+        .then(e => {
+            return e;
+        });
 }
 
 
