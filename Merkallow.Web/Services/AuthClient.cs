@@ -1,5 +1,6 @@
 ﻿using Blazored.Toast.Services;
 using Merkallow.Web.ViewModels;
+using Microsoft.JSInterop;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -16,7 +17,7 @@ namespace Merkallow.Web.Services
         Task<User> CreateUser(string address);
         // authorized
         Task<User> Update(User user);
-        Task<string> CallAuthenticate();
+        Task<string> CallAuthenticate(User user);
     }
     public class AuthClient : IAuthenticate
     {
@@ -24,14 +25,16 @@ namespace Merkallow.Web.Services
         AppState _appState;
         IToastService _toast;
         HttpClient _http;
+        IJSRuntime _js;
 
-        public AuthClient(ClientConfig config, AppState state, IToastService toast)
+        public AuthClient(ClientConfig config, AppState state, IToastService toast, IJSRuntime JS)
         {
             _apiUrl = config.ApiUrl;
             _appState = state;
             _toast = toast;
             _http = new HttpClient();
             _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
+            _js = JS;
         }
 
         public async Task<User[]> FindUser(string address)
@@ -109,7 +112,7 @@ namespace Merkallow.Web.Services
             var query = HttpUtility.ParseQueryString(builder.Query);
             query["publicAddress"] = user.PublicAddress;
             builder.Query = query.ToString();
-            string uri = builder.ToString();
+            string uri = builder.ToString();  
 
 
             // PATCH User
@@ -132,9 +135,24 @@ namespace Merkallow.Web.Services
             return data;
         }
 
-        public async Task<string> CallAuthenticate()
+        public async Task<string> CallAuthenticate(User user)
         {
-            throw new NotImplementedException();
+            var builder = new UriBuilder(_apiUrl + "/users");
+            var query = HttpUtility.ParseQueryString(builder.Query);
+            query["publicAddress"] = user.PublicAddress;
+            builder.Query = query.ToString();
+            string uri = builder.ToString();
+
+            var signed = await _js.InvokeAsync<string>("sign", user.Nonce, user.PublicAddress);
+            Console.WriteLine($"signed msg: {signed}");
+
+            Console.WriteLine($"callin: {uri}");
+            var request = new AuthRequest() { PublicAddress = user.PublicAddress, Signature = signed };
+            var result = await _http.PostAsJsonAsync<AuthRequest>(uri, request);
+            var content = await result.Content.ReadAsStringAsync();
+            var tokenResult = JsonSerializer.Deserialize<Token>(content, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+            return tokenResult.AccessToken;
         }
     }
 }
