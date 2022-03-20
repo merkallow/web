@@ -62,6 +62,7 @@ namespace Merkallow.Web.Services
         // Authorized
         public async Task<User[]> GetUser(string address)
         {
+            _http.DefaultRequestHeaders.Remove("Authorization");
             _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
             var builder = new UriBuilder(_apiUrl + "/users");
             var query = HttpUtility.ParseQueryString(builder.Query);
@@ -109,6 +110,8 @@ namespace Merkallow.Web.Services
 
         public async Task<User> Update(User user)
         {
+            _http.DefaultRequestHeaders.Remove("Authorization");
+            _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
             var builder = new UriBuilder(_apiUrl + "/users");
             var query = HttpUtility.ParseQueryString(builder.Query);
             query["publicAddress"] = user.PublicAddress;

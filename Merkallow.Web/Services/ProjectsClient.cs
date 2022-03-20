@@ -39,6 +39,7 @@ namespace Merkallow.Web.Services
 
         public async Task<List<Project>> Get()
         {
+            _http.DefaultRequestHeaders.Remove("Authorization");
             _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
             var uri = _apiUrl + $"/projects";
             Console.WriteLine($"callin: {uri}");
@@ -49,6 +50,7 @@ namespace Merkallow.Web.Services
 
         public async Task<Project> Create(string name)
         {
+            _http.DefaultRequestHeaders.Remove("Authorization");
             _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
             var uri = _apiUrl + $"/projects";
             var request = new ProjectCreateRequest() { Name = name };
@@ -62,6 +64,7 @@ namespace Merkallow.Web.Services
 
         public async Task<ProjectRoot> Generate(int projectId)
         {
+            _http.DefaultRequestHeaders.Remove("Authorization");
             _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
             var uri = _apiUrl + $"/projects/generate/{projectId}";
             var request = new GenerateTreeRequest() { ProjectId = projectId };
