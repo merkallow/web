@@ -3,6 +3,7 @@
 @using MetaMask.Blazor.Enums
 @inject IDoProjects Comms
 @inject IDoAddresses Addr
+@inject IAuthenticate Auth
 @inject IToastService Toast
 @inject MetaMaskService Meta
 @inject AppState AppState
@@ -13,17 +14,19 @@
 
 <PageTitle>Merkallow</PageTitle>
 
-@*@if(AppState.AccountToShow().StartsWith("0x47b4"))
-{
-    <button class="btn btn-secondary" @onclick="@(() => DoTest())">Test</button>
-}
-*@
-@if(AppState.IsAuthenticated)
+@*@if(AppState.AccountToShow().StartsWith("0x47b4"))*@
+@*@if(true)
+    {
+    <button class="btn btn-secondary" @onclick="@(() => Test())">Test</button>
+    }*@
+
+
+@if (AppState.IsAuthenticated)
 {
     <div style="margin-bottom: .5rem;">Welcome, <span style="color: #5a349aff; font-weight:bold;">@AppState.AccountToShow()</span></div>
 }
 
-@if(@Spinning)
+@if (@Spinning)
 {
     <Spinner />
 }
@@ -47,7 +50,7 @@
         }
     </div>
 }
-else if(!ProperChain)
+else if (!ProperChain)
 {
     <div>Please, select <span style="color: #5a349aff; font-weight:bold">@NeededChain</span> chain</div>
     <button class="btn btn-primary" @onclick="@(() => SwitchChain())">Open MetaMask</button>
@@ -143,8 +146,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        Projects = await Comms.Get();
-
         MetaMaskService.AccountChangedEvent += MetaMaskService_AccountChangedEvent;
         MetaMaskService.ChainChangedEvent += MetaMaskService_ChainChangedEvent;
 
@@ -157,9 +158,23 @@ else
         bool isSiteConnected = await Meta.IsSiteConnected();
         if (isSiteConnected)
         {
-            await GetSelectedAddress();
+            //await GetSelectedAddress();
             await GetSelectedNetwork();
         }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(Projects == null && AppState.IsAuthenticated)
+        {
+            Console.WriteLine(AppState.BearerToken);
+            LoadProjects();
+        }
+    }
+
+    public async Task LoadProjects()
+    {
+        Projects = await Comms.Get();
     }
 
 
@@ -176,15 +191,8 @@ else
     {
         Console.WriteLine("MetaMaskService_AccountChangedEvent");
         Spinning = true;
-        await GetSelectedAddress();
+        //await Authenticate();
         Spinning = false;
-        StateHasChanged();
-    }
-
-    public async Task GetSelectedAddress()
-    {
-        var address = await Meta.GetSelectedAddress();
-        AppState.SetAccount(this, address);
         StateHasChanged();
     }
 
@@ -196,9 +204,9 @@ else
         Console.WriteLine($"ChainID: {AppState.ChainId}");
         StateHasChanged();
 
-        if(ProperChain)
+        if (ProperChain)
         {
-            Toast.ShowInfo($"Authenticated on: {NetworksList.Networks[AppState.ChainId]}");
+            Console.WriteLine($"Authenticated on: {NetworksList.Networks[AppState.ChainId]}");
         }
         else
         {
@@ -222,8 +230,34 @@ else
             {
                 if (!await Meta.IsSiteConnected())
                     await Meta.ConnectMetaMask();
-                var user = await Meta.GetSelectedAddress();
-                AppState.SetAccount(this, user);
+                var userId = await Meta.GetSelectedAddress();
+
+                if (!AppState.IsAuthenticated)
+                {
+                    var address = await Meta.GetSelectedAddress();
+                    var data = await Auth.FindUser(address);
+
+                    User? user = null;
+
+                    if (data.Count() == 0)
+                    {
+                        Console.WriteLine("creating");
+                        user = await Auth.CreateUser(address);
+                    }
+                    else
+                    {
+                        user = data.First();
+                        Console.WriteLine($"using {user.PublicAddress}");
+                    }
+
+
+                    var token = await Auth.CallAuthenticate(user);
+                    Console.WriteLine($"got token: {token}");
+                    AppState.SetToken(this, token);
+                    AppState.SetAccount(this, address);
+                    StateHasChanged();
+                }
+
             }
             catch (Exception ex)
             {
@@ -300,7 +334,7 @@ else
 
     async Task DeleteAddress(Address address)
     {
-        if(await Addr.Delete(address.Id))
+        if (await Addr.Delete(address.Id))
         {
             Addresses.Remove(address);
             StateHasChanged();
@@ -310,9 +344,9 @@ else
     async Task UpdateAddress(Address address)
     {
         Console.WriteLine($"updating: {address.PublicAddress}");
-        if(await Addr.Update(address.PublicAddress, address.Id))
+        if (await Addr.Update(address.PublicAddress, address.Id))
         {
-            var i = Addresses.Select((o, i) => new { o, i}).Where(x => x.o.Id == address.Id).FirstOrDefault().i;
+            var i = Addresses.Select((o, i) => new { o, i }).Where(x => x.o.Id == address.Id).FirstOrDefault().i;
             Addresses[i] = address;
             Console.WriteLine("updated");
             StateHasChanged();
@@ -325,10 +359,6 @@ else
         await JS.InvokeVoidAsync("switchChain", toChain);
     }
 
-    async Task DoTest()
-    {
-        await JS.InvokeVoidAsync("showAlert", "123");
-    }
 
     // ----
     protected override void OnInitialized()

@@ -60,6 +60,7 @@ namespace Merkallow.Web.Services
             return data;
         }
 
+        // Authorized
         public async Task<User[]> GetUser(string address)
         {
             var builder = new UriBuilder(_apiUrl + "/users");
@@ -137,7 +138,7 @@ namespace Merkallow.Web.Services
 
         public async Task<string> CallAuthenticate(User user)
         {
-            var builder = new UriBuilder(_apiUrl + "/users");
+            var builder = new UriBuilder(_apiUrl + "/auth");
             var query = HttpUtility.ParseQueryString(builder.Query);
             query["publicAddress"] = user.PublicAddress;
             builder.Query = query.ToString();
