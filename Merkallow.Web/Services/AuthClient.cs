@@ -1,5 +1,6 @@
 ﻿using Blazored.Toast.Services;
 using Merkallow.Web.ViewModels;
+using Microsoft.JSInterop;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -16,6 +17,7 @@ namespace Merkallow.Web.Services
         Task<User> CreateUser(string address);
         // authorized
         Task<User> Update(User user);
+        Task<string> CallAuthenticate(User user);
     }
     public class AuthClient : IAuthenticate
     {
@@ -23,14 +25,16 @@ namespace Merkallow.Web.Services
         AppState _appState;
         IToastService _toast;
         HttpClient _http;
+        IJSRuntime _js;
 
-        public AuthClient(ClientConfig config, AppState state, IToastService toast)
+        public AuthClient(ClientConfig config, AppState state, IToastService toast, IJSRuntime JS)
         {
             _apiUrl = config.ApiUrl;
             _appState = state;
             _toast = toast;
             _http = new HttpClient();
             _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
+            _js = JS;
         }
 
         public async Task<User[]> FindUser(string address)
@@ -56,6 +60,7 @@ namespace Merkallow.Web.Services
             return data;
         }
 
+        // Authorized
         public async Task<User[]> GetUser(string address)
         {
             var builder = new UriBuilder(_apiUrl + "/users");
@@ -73,7 +78,7 @@ namespace Merkallow.Web.Services
                 Console.WriteLine("got: ");
                 foreach (var user in data)
                 {
-                    Console.WriteLine($"user: {user.Id} {user.PublicAddress}");
+                    Console.WriteLine($"user: {user.Id} - {user.Nonce} - {user.PublicAddress}");
                 }
             }
             else { Console.WriteLine("No such user there"); }
@@ -108,18 +113,14 @@ namespace Merkallow.Web.Services
             var query = HttpUtility.ParseQueryString(builder.Query);
             query["publicAddress"] = user.PublicAddress;
             builder.Query = query.ToString();
-            string uri = builder.ToString();
+            string uri = builder.ToString();  
 
 
             // PATCH User
-
             Console.WriteLine($"callin: {uri}");
             //var result = await _http.PatchAsync<User>(uri, user);
-
             //var content = await result.Content.ReadAsStringAsync();
             //var data = JsonSerializer.Deserialize<User>(content, new JsonSerializerOptions(JsonSerializerDefaults.Web));
-
-
 
             var content = new StringContent(
                 JsonSerializer.Serialize<User>(user),
@@ -128,17 +129,31 @@ namespace Merkallow.Web.Services
                 "application/json");
 
             var result =  await _http.PatchAsync(uri, content).ConfigureAwait(false);
-            //var data = JsonSerializer.Deserialize<User>(result., new JsonSerializerOptions(JsonSerializerDefaults.Web));
-            var test = await result.Content.ReadAsStreamAsync();
-            var data = JsonSerializer.Deserialize<User>(test, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            var stream = await result.Content.ReadAsStreamAsync();
+            var data = JsonSerializer.Deserialize<User>(stream, new JsonSerializerOptions(JsonSerializerDefaults.Web));
 
             Console.WriteLine($"updated: {data.Id} {data.Nonce} {data.Username}");
             return data;
         }
 
-        public async Task CallAuthenticate()
+        public async Task<string> CallAuthenticate(User user)
         {
+            var builder = new UriBuilder(_apiUrl + "/auth");
+            var query = HttpUtility.ParseQueryString(builder.Query);
+            query["publicAddress"] = user.PublicAddress;
+            builder.Query = query.ToString();
+            string uri = builder.ToString();
 
+            var signed = await _js.InvokeAsync<string>("sign", user.Nonce, user.PublicAddress);
+            Console.WriteLine($"signed msg: {signed}");
+
+            Console.WriteLine($"callin: {uri}");
+            var request = new AuthRequest() { PublicAddress = user.PublicAddress, Signature = signed };
+            var result = await _http.PostAsJsonAsync<AuthRequest>(uri, request);
+            var content = await result.Content.ReadAsStringAsync();
+            var tokenResult = JsonSerializer.Deserialize<Token>(content, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+            return tokenResult.AccessToken;
         }
     }
 }
