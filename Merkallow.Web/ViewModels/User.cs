@@ -7,4 +7,9 @@
         public string PublicAddress { get; set; } = string.Empty;
         public string? Username { get; set; } = null;
     }
+
+    public class AuthenticatedUser : User
+    {
+        public string? BearerToken { get; set; }
+    }
 }
