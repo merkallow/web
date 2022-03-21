@@ -1,6 +1,8 @@
 ﻿@page "/"
 @using MetaMask.Blazor
 @using MetaMask.Blazor.Enums
+@using System.IdentityModel.Tokens.Jwt
+@using Newtonsoft.Json
 @inject IDoProjects Comms
 @inject IDoAddresses Addr
 @inject IAuthenticate Auth
@@ -16,9 +18,9 @@
 
 @*@if(AppState.AccountToShow().StartsWith("0x47b4"))*@
 @*@if(true)
-    {
+{
     <button class="btn btn-secondary" @onclick="@(() => Test())">Test</button>
-    }*@
+}*@
 
 
 @if (AppState.IsAuthenticated)
@@ -157,7 +159,6 @@ else
             //await GetSelectedAddress();
             await GetSelectedNetwork();
         }
-        Console.WriteLine("no connected");
 
         MetaMaskService.AccountChangedEvent += MetaMaskService_AccountChangedEvent;
         MetaMaskService.ChainChangedEvent += MetaMaskService_ChainChangedEvent;
@@ -275,33 +276,64 @@ else
 
     async Task CheckAndSetUser()
     {
-        var cookieToken = await JS.InvokeAsync<string>("getCookie", "token");
-        if (await Meta.IsSiteConnected())
-        {
-            var address = await Meta.GetSelectedAddress();
-            Console.WriteLine($"addr: {address}");
-            Console.WriteLine($"cookie: {cookieToken}");
+        Console.WriteLine("$$$$$$$$$ CheckAndSetUser $$$$$$$$$");
+        var tokenCookie = await JS.InvokeAsync<string>("getCookie", "token");
 
-            var currentUser = await Auth.GetUser(address);
-            if (currentUser.Any() && currentUser.First().PublicAddress == address)
-            {
-                AppState.SetAccount(this, address);
-                AppState.SetToken(this, cookieToken);
-            }
-            else
-            {
-                Console.WriteLine("cleaning user state");
-                await AppState.Logout(this);
-            }
+        var token = tokenCookie.GetTokenFromJwt();
+
+
+        Console.WriteLine($"> {token.Payload.Id} {token.Payload.PublicAddress} {token.IssuedAt.ToString()}");
+
+        Console.WriteLine();
+
+
+
+        // check if Metamask is connected
+        // check if metamask user is same as token user & appstate.user
+        // check if check token is not deprecated
+        var address = await Meta.GetSelectedAddress();
+        var currentUser = await Auth.GetUser(address);
+
+        
+        if(token.Payload.PublicAddress == AppState.CurrentUser.PublicAddress) // same user
+        {
+
+            await LoadProjects();
         }
         else
         {
-            Console.WriteLine("cleaning user state");
-            AppState.SetAccount(this, string.Empty);
-            AppState.SetToken(this, string.Empty);
-            await JS.InvokeVoidAsync("eraseCookie", "token");
+            await AppState.Logout(this);
+
         }
+
+
+
+        //if (await Meta.IsSiteConnected())
+        //{
+        //    var address = await Meta.GetSelectedAddress();
+        //    Console.WriteLine($"addr: {address}");
+        //    Console.WriteLine($"cookie: {tokenCookie}");
+
+        //    var currentUser = await Auth.GetUser(address);
+        //    if (currentUser.Any() && currentUser.First().PublicAddress == address)
+        //    {
+        //        Console.WriteLine("Setting address & token");
+        //        AppState.SetAccount(this, address);
+        //        AppState.SetToken(this, tokenCookie);
+        //    }
+        //    else
+        //    {
+        //        Console.WriteLine("cleaning user state");
+        //        await AppState.Logout(this);
+        //    }
+        //}
+        //else
+        //{
+        //    await AppState.Logout(this);
+        //}
+        
         StateHasChanged();
+        Console.WriteLine("$$$$$$$$$ CheckAndSetDone $$$$$$$$$");
     }
 
 
