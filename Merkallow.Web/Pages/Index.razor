@@ -39,7 +39,7 @@
             <h2>NFT mint whitelist</h2>
         </div>
         <div class="d-flex justify-content-center">
-            <button class="btn btn-primary" @onclick="(() => Authenticate())" disabled="@(!HasMetaMask)">
+            <button class="btn btn-primary" @onclick="(() => ClickedAuthenticate())" disabled="@(!HasMetaMask)">
                 Authenticate
             </button>
         </div>
@@ -156,7 +156,6 @@ else
         if (isSiteConnected)
         {
             Console.WriteLine("connected");
-            //await GetSelectedAddress();
             await GetSelectedNetwork();
         }
 
@@ -166,19 +165,17 @@ else
         await CheckAndSetUser();
     }
 
-    //protected override async Task OnAfterRenderAsync(bool firstRender)
-    //{
-    //    if(Projects == null && AppState.IsAuthenticated)
-    //    {
-    //        //Console.WriteLine($"# {firstRender}");
-    //        //Console.WriteLine(AppState.BearerToken);
-    //        //await LoadProjects();
-    //    }
-    //}
-
     public async Task LoadProjects()
     {
-        Projects = await Comms.Get();
+        try
+        {
+            Projects = await Comms.Get();
+        }
+        catch(Exception ex)
+        {
+            Projects = new List<Project>();
+            Toast.ShowError($"Error retrieving Projects: {ex.Message}");
+        }
     }
 
 
@@ -220,127 +217,83 @@ else
 
     async Task Authenticate()
     {
-        //Console.WriteLine("Authenticating...");
-        //Spinning = true;
-        //if (!await Meta.HasMetaMask())
-        //{
-        //    Console.WriteLine("Has no MetaMask");
-        //    HasMetaMask = false;
-        //    StateHasChanged();
-        //}
-        //else
-        //{
-        //    try
-        //    {
-        //        if (!await Meta.IsSiteConnected())
-        //            await Meta.ConnectMetaMask();
-        //        var userId = await Meta.GetSelectedAddress();
-
-        //        if (!AppState.IsAuthenticated)
-        //        {
-        //            var address = await Meta.GetSelectedAddress();
-        //            var data = await Auth.FindUser(address);
-
-        //            User? user = null;
-
-        //            if (data.Count() == 0)
-        //            {
-        //                Console.WriteLine("creating");
-        //                user = await Auth.CreateUser(address);
-        //            }
-        //            else
-        //            {
-        //                user = data.First();
-        //                Console.WriteLine($"using {user.PublicAddress}");
-        //            }
+        Console.WriteLine("Authenticating...");
+        Spinning = true;
+        if (!await Meta.HasMetaMask())
+        {
+            Console.WriteLine("Has no MetaMask");
+            HasMetaMask = false;
+            StateHasChanged();
+        }
+        else
+        {
+            try
+            {
+                if (!await Meta.IsSiteConnected())
+                    await Meta.ConnectMetaMask();
+                var userId = await Meta.GetSelectedAddress();
 
 
-        //            var token = await Auth.CallAuthenticate(user);
-        //            Console.WriteLine($"got token: {token}");
-        //            AppState.SetToken(this, token);
-        //            AppState.SetAccount(this, address);
-        //            await GetSelectedNetwork();
+                var address = await Meta.GetSelectedAddress();
+                var data = await Auth.FindUser(address);
 
-        //            await LoadProjects();
-        //            StateHasChanged();
-        //        }
+                User? user = null;
+                if (data.Count() == 0)
+                {
+                    Console.WriteLine("creating");
+                    user = await Auth.CreateUser(address);
+                }
+                else
+                {
+                    user = data.First();
+                    Console.WriteLine($"using {user.PublicAddress}");
+                }
 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Toast.ShowError($"Auth failed. Please, check your wallet");
-        //    }
-        //}
-        //Spinning = false;
+                var newToken = await Auth.CallAuthenticate(user);
+                await AppState.Login(this, user, newToken);
+
+                await GetSelectedNetwork();
+            }
+            catch (Exception ex)
+            {
+                Toast.ShowError($"Auth failed. Please, check your wallet");
+            }
+        }
+        Spinning = false;
     }
 
     async Task CheckAndSetUser()
     {
-        Console.WriteLine();
-        Console.WriteLine("$$$$$$$$$ CheckAndSetUser $$$$$$$$$");
         var tokenCookie = await JS.InvokeAsync<string>("getCookie", "token");
-
 
         // Get user from cookie
         if (!string.IsNullOrEmpty(tokenCookie))
         {
             var token = tokenCookie.GetTokenFromJwt();
+
             var address = await Meta.GetSelectedAddress();
+            var currentUser = await Auth.GetUser(address);
 
-            Console.WriteLine($"IsAuthenticated: {AppState.IsAuthenticated}");
-            Console.WriteLine($">>>>>> cmp {token.Payload.PublicAddress}");
-
-            if (AppState.IsAuthenticated && (token.Payload.PublicAddress == AppState.CurrentUser.User.PublicAddress)) // same user
+            if (token.Payload.PublicAddress == address) // same user
             {
-                // all is ok, just leaving it like this
+                if (!AppState.IsAuthenticated)
+                {
+                    await AppState.Login(this, currentUser.First(), tokenCookie);
+                }
+
+                await LoadProjects();
             }
             else
             {
-                var currentUser = await Auth.GetUser(address);
-                Console.WriteLine($"Identified user: {currentUser.First().PublicAddress}");
-                await AppState.Login(this, currentUser.First(), tokenCookie);
+                await AppState.Logout(this);
             }
-
-            //await LoadProjects();
         }
         else
         {
             await AppState.Logout(this);
         }
 
-
-        // check if Metamask is connected
-        // check if metamask user is same as token user & appstate.user
-        // check if check token is not deprecated
-
-
-
-        //if (await Meta.IsSiteConnected())
-        //{
-        //    var address = await Meta.GetSelectedAddress();
-        //    Console.WriteLine($"addr: {address}");
-        //    Console.WriteLine($"cookie: {tokenCookie}");
-
-        //    var currentUser = await Auth.GetUser(address);
-        //    if (currentUser.Any() && currentUser.First().PublicAddress == address)
-        //    {
-        //        Console.WriteLine("Setting address & token");
-        //        AppState.SetAccount(this, address);
-        //        AppState.SetToken(this, tokenCookie);
-        //    }
-        //    else
-        //    {
-        //        Console.WriteLine("cleaning user state");
-        //        await AppState.Logout(this);
-        //    }
-        //}
-        //else
-        //{
-        //    await AppState.Logout(this);
-        //}
-
         StateHasChanged();
-        Console.WriteLine("$$$$$$$$$ CheckAndSetDone $$$$$$$$$");
     }
 
 
@@ -427,6 +380,13 @@ else
             Console.WriteLine("updated");
             StateHasChanged();
         }
+    }
+
+    async Task ClickedAuthenticate()
+    {
+        await Authenticate();
+        await LoadProjects();
+        StateHasChanged();
     }
 
     async Task SwitchChain()
