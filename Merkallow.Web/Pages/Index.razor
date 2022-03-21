@@ -54,7 +54,6 @@ else if (!ProperChain)
 {
     <div>Please, select <span style="color: #5a349aff; font-weight:bold">@NeededChain</span> chain</div>
     <button class="btn btn-primary" @onclick="@(() => SwitchChain())">Open MetaMask</button>
-    @* await ethereum.request({ method: 'eth_requestAccounts' }); *@
 }
 else if (SelectedProject == null)
 {
@@ -146,31 +145,35 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        MetaMaskService.AccountChangedEvent += MetaMaskService_AccountChangedEvent;
-        MetaMaskService.ChainChangedEvent += MetaMaskService_ChainChangedEvent;
-
-        //Toast.ShowInfo($"retrieved {Projects.Count()} entries");
-
         HasMetaMask = await Meta.HasMetaMask();
         if (HasMetaMask)
             await Meta.ListenToEvents();
 
+        Console.WriteLine("initializing");
         bool isSiteConnected = await Meta.IsSiteConnected();
         if (isSiteConnected)
         {
+            Console.WriteLine("connected");
             //await GetSelectedAddress();
             await GetSelectedNetwork();
         }
+        Console.WriteLine("no connected");
+
+        MetaMaskService.AccountChangedEvent += MetaMaskService_AccountChangedEvent;
+        MetaMaskService.ChainChangedEvent += MetaMaskService_ChainChangedEvent;
+
+        await CheckAndSetUser();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if(Projects == null && AppState.IsAuthenticated)
-        {
-            Console.WriteLine(AppState.BearerToken);
-            LoadProjects();
-        }
-    }
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    if(Projects == null && AppState.IsAuthenticated)
+    //    {
+    //        //Console.WriteLine($"# {firstRender}");
+    //        //Console.WriteLine(AppState.BearerToken);
+    //        //await LoadProjects();
+    //    }
+    //}
 
     public async Task LoadProjects()
     {
@@ -191,7 +194,7 @@ else
     {
         Console.WriteLine("MetaMaskService_AccountChangedEvent");
         Spinning = true;
-        //await Authenticate();
+        await CheckAndSetUser();
         Spinning = false;
         StateHasChanged();
     }
@@ -255,6 +258,9 @@ else
                     Console.WriteLine($"got token: {token}");
                     AppState.SetToken(this, token);
                     AppState.SetAccount(this, address);
+                    await GetSelectedNetwork();
+
+                    await LoadProjects();
                     StateHasChanged();
                 }
 
@@ -265,6 +271,37 @@ else
             }
         }
         Spinning = false;
+    }
+
+    async Task CheckAndSetUser()
+    {
+        var cookieToken = await JS.InvokeAsync<string>("getCookie", "token");
+        if (await Meta.IsSiteConnected())
+        {
+            var address = await Meta.GetSelectedAddress();
+            Console.WriteLine($"addr: {address}");
+            Console.WriteLine($"cookie: {cookieToken}");
+
+            var currentUser = await Auth.GetUser(address);
+            if (currentUser.Any() && currentUser.First().PublicAddress == address)
+            {
+                AppState.SetAccount(this, address);
+                AppState.SetToken(this, cookieToken);
+            }
+            else
+            {
+                Console.WriteLine("cleaning user state");
+                await AppState.Logout(this);
+            }
+        }
+        else
+        {
+            Console.WriteLine("cleaning user state");
+            AppState.SetAccount(this, string.Empty);
+            AppState.SetToken(this, string.Empty);
+            await JS.InvokeVoidAsync("eraseCookie", "token");
+        }
+        StateHasChanged();
     }
 
 

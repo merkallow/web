@@ -26,7 +26,6 @@ namespace Merkallow.Web.Services
             _appState = state;
             _toast = toast;
             _http = new HttpClient();
-            _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
         }
 
         public async Task<Project> Get(int id)
@@ -40,6 +39,8 @@ namespace Merkallow.Web.Services
 
         public async Task<List<Project>> Get()
         {
+            _http.DefaultRequestHeaders.Remove("Authorization");
+            _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
             var uri = _apiUrl + $"/projects";
             Console.WriteLine($"callin: {uri}");
             var data = await _http.GetFromJsonAsync<Project[]>(uri);
@@ -49,6 +50,8 @@ namespace Merkallow.Web.Services
 
         public async Task<Project> Create(string name)
         {
+            _http.DefaultRequestHeaders.Remove("Authorization");
+            _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
             var uri = _apiUrl + $"/projects";
             var request = new ProjectCreateRequest() { Name = name };
             var result = await _http.PostAsJsonAsync<ProjectCreateRequest>(uri, request);
@@ -61,6 +64,8 @@ namespace Merkallow.Web.Services
 
         public async Task<ProjectRoot> Generate(int projectId)
         {
+            _http.DefaultRequestHeaders.Remove("Authorization");
+            _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
             var uri = _apiUrl + $"/projects/generate/{projectId}";
             var request = new GenerateTreeRequest() { ProjectId = projectId };
             var result = await _http.PostAsJsonAsync<GenerateTreeRequest>(uri, request);

@@ -33,7 +33,6 @@ namespace Merkallow.Web.Services
             _appState = state;
             _toast = toast;
             _http = new HttpClient();
-            _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
             _js = JS;
         }
 
@@ -63,6 +62,8 @@ namespace Merkallow.Web.Services
         // Authorized
         public async Task<User[]> GetUser(string address)
         {
+            _http.DefaultRequestHeaders.Remove("Authorization");
+            _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
             var builder = new UriBuilder(_apiUrl + "/users");
             var query = HttpUtility.ParseQueryString(builder.Query);
             query["publicAddress"] = address;
@@ -109,6 +110,8 @@ namespace Merkallow.Web.Services
 
         public async Task<User> Update(User user)
         {
+            _http.DefaultRequestHeaders.Remove("Authorization");
+            _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
             var builder = new UriBuilder(_apiUrl + "/users");
             var query = HttpUtility.ParseQueryString(builder.Query);
             query["publicAddress"] = user.PublicAddress;
@@ -152,6 +155,11 @@ namespace Merkallow.Web.Services
             var result = await _http.PostAsJsonAsync<AuthRequest>(uri, request);
             var content = await result.Content.ReadAsStringAsync();
             var tokenResult = JsonSerializer.Deserialize<Token>(content, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+            if(!string.IsNullOrEmpty(tokenResult?.AccessToken))
+            {
+                await _js.InvokeVoidAsync("setCookie", "token", tokenResult.AccessToken);
+            }
 
             return tokenResult.AccessToken;
         }

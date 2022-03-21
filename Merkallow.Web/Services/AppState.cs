@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace Merkallow.Web.Services
 {
@@ -17,6 +18,13 @@ namespace Merkallow.Web.Services
                 return $"{AccountId.Substring(0, 6)}...{AccountId.Substring(AccountId.Length - 4)}";
         }
 
+        private IJSRuntime _js;
+
+        public AppState(IJSRuntime JS)
+        {
+            _js = JS;
+        }
+
         public void SetAccount(ComponentBase source, string accountId)
         {
             this.AccountId = accountId.ToLower();
@@ -33,6 +41,16 @@ namespace Merkallow.Web.Services
         {
             this.BearerToken = accessToken;
             NotifyStateChanged(source, "BearerToken");
+        }
+
+        public async Task Logout(ComponentBase source)
+        {
+            this.BearerToken = null;
+            this.AccountId = null;
+            NotifyStateChanged(source, "BearerToken");
+            NotifyStateChanged(source, "AccountId");
+
+            await _js.InvokeVoidAsync("eraseCookie", "token");
         }
 
 
