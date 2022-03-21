@@ -291,9 +291,7 @@ else
             else
             {
                 Console.WriteLine("cleaning user state");
-                AppState.SetAccount(this, string.Empty);
-                AppState.SetToken(this, string.Empty);
-                await JS.InvokeVoidAsync("eraseCookie", "token");
+                await AppState.Logout(this);
             }
         }
         else
