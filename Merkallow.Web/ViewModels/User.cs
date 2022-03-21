@@ -8,8 +8,9 @@
         public string? Username { get; set; } = null;
     }
 
-    public class AuthenticatedUser : User
+    public class AuthenticatedUser
     {
         public string? BearerToken { get; set; }
+        public User User { get; set; }
     }
 }

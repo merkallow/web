@@ -18,9 +18,9 @@
 
 @*@if(AppState.AccountToShow().StartsWith("0x47b4"))*@
 @*@if(true)
-{
+    {
     <button class="btn btn-secondary" @onclick="@(() => Test())">Test</button>
-}*@
+    }*@
 
 
 @if (AppState.IsAuthenticated)
@@ -220,91 +220,98 @@ else
 
     async Task Authenticate()
     {
-        Console.WriteLine("Authenticating...");
-        Spinning = true;
-        if (!await Meta.HasMetaMask())
-        {
-            Console.WriteLine("Has no MetaMask");
-            HasMetaMask = false;
-            StateHasChanged();
-        }
-        else
-        {
-            try
-            {
-                if (!await Meta.IsSiteConnected())
-                    await Meta.ConnectMetaMask();
-                var userId = await Meta.GetSelectedAddress();
+        //Console.WriteLine("Authenticating...");
+        //Spinning = true;
+        //if (!await Meta.HasMetaMask())
+        //{
+        //    Console.WriteLine("Has no MetaMask");
+        //    HasMetaMask = false;
+        //    StateHasChanged();
+        //}
+        //else
+        //{
+        //    try
+        //    {
+        //        if (!await Meta.IsSiteConnected())
+        //            await Meta.ConnectMetaMask();
+        //        var userId = await Meta.GetSelectedAddress();
 
-                if (!AppState.IsAuthenticated)
-                {
-                    var address = await Meta.GetSelectedAddress();
-                    var data = await Auth.FindUser(address);
+        //        if (!AppState.IsAuthenticated)
+        //        {
+        //            var address = await Meta.GetSelectedAddress();
+        //            var data = await Auth.FindUser(address);
 
-                    User? user = null;
+        //            User? user = null;
 
-                    if (data.Count() == 0)
-                    {
-                        Console.WriteLine("creating");
-                        user = await Auth.CreateUser(address);
-                    }
-                    else
-                    {
-                        user = data.First();
-                        Console.WriteLine($"using {user.PublicAddress}");
-                    }
+        //            if (data.Count() == 0)
+        //            {
+        //                Console.WriteLine("creating");
+        //                user = await Auth.CreateUser(address);
+        //            }
+        //            else
+        //            {
+        //                user = data.First();
+        //                Console.WriteLine($"using {user.PublicAddress}");
+        //            }
 
 
-                    var token = await Auth.CallAuthenticate(user);
-                    Console.WriteLine($"got token: {token}");
-                    AppState.SetToken(this, token);
-                    AppState.SetAccount(this, address);
-                    await GetSelectedNetwork();
+        //            var token = await Auth.CallAuthenticate(user);
+        //            Console.WriteLine($"got token: {token}");
+        //            AppState.SetToken(this, token);
+        //            AppState.SetAccount(this, address);
+        //            await GetSelectedNetwork();
 
-                    await LoadProjects();
-                    StateHasChanged();
-                }
+        //            await LoadProjects();
+        //            StateHasChanged();
+        //        }
 
-            }
-            catch (Exception ex)
-            {
-                Toast.ShowError($"Auth failed. Please, check your wallet");
-            }
-        }
-        Spinning = false;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Toast.ShowError($"Auth failed. Please, check your wallet");
+        //    }
+        //}
+        //Spinning = false;
     }
 
     async Task CheckAndSetUser()
     {
+        Console.WriteLine();
         Console.WriteLine("$$$$$$$$$ CheckAndSetUser $$$$$$$$$");
         var tokenCookie = await JS.InvokeAsync<string>("getCookie", "token");
 
-        var token = tokenCookie.GetTokenFromJwt();
 
+        // Get user from cookie
+        if (!string.IsNullOrEmpty(tokenCookie))
+        {
+            var token = tokenCookie.GetTokenFromJwt();
+            var address = await Meta.GetSelectedAddress();
 
-        Console.WriteLine($"> {token.Payload.Id} {token.Payload.PublicAddress} {token.IssuedAt.ToString()}");
+            Console.WriteLine($"IsAuthenticated: {AppState.IsAuthenticated}");
+            Console.WriteLine($">>>>>> cmp {token.Payload.PublicAddress}");
 
-        Console.WriteLine();
+            if (AppState.IsAuthenticated && (token.Payload.PublicAddress == AppState.CurrentUser.User.PublicAddress)) // same user
+            {
+                // all is ok, just leaving it like this
+            }
+            else
+            {
+                var currentUser = await Auth.GetUser(address);
+                Console.WriteLine($"Identified user: {currentUser.First().PublicAddress}");
+                await AppState.Login(this, currentUser.First(), tokenCookie);
+            }
 
+            //await LoadProjects();
+        }
+        else
+        {
+            await AppState.Logout(this);
+        }
 
 
         // check if Metamask is connected
         // check if metamask user is same as token user & appstate.user
         // check if check token is not deprecated
-        var address = await Meta.GetSelectedAddress();
-        var currentUser = await Auth.GetUser(address);
-
-        
-        if(token.Payload.PublicAddress == AppState.CurrentUser.PublicAddress) // same user
-        {
-
-            await LoadProjects();
-        }
-        else
-        {
-            await AppState.Logout(this);
-
-        }
 
 
 
@@ -331,7 +338,7 @@ else
         //{
         //    await AppState.Logout(this);
         //}
-        
+
         StateHasChanged();
         Console.WriteLine("$$$$$$$$$ CheckAndSetDone $$$$$$$$$");
     }
