@@ -76,11 +76,11 @@ namespace Merkallow.Web.Services
 
             if (data.Length > 0)
             {
-                Console.WriteLine("got: ");
-                foreach (var user in data)
-                {
-                    Console.WriteLine($"user: {user.Id} - {user.Nonce} - {user.PublicAddress}");
-                }
+                //Console.WriteLine("got: ");
+                //foreach (var user in data)
+                //{
+                //    Console.WriteLine($"user: {user.Id} - {user.Nonce} - {user.PublicAddress}");
+                //}
             }
             else { Console.WriteLine("No such user there"); }
             return data;
