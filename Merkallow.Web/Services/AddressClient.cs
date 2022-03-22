@@ -26,11 +26,12 @@ namespace Merkallow.Web.Services
             _appState = state;
             _toast = toast;
             _http = new HttpClient();
-            _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
         }
 
         public async Task<List<Address>> Get(int id)
         {
+            _http.DefaultRequestHeaders.Remove("Authorization");
+            _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
             var uri = _apiUrl + $"/addresses/{id}";
             Console.WriteLine($"callin: {uri}");
             var data = await _http.GetFromJsonAsync<Address[]>(uri);
@@ -40,6 +41,8 @@ namespace Merkallow.Web.Services
 
         public async Task<List<Address>> Add(string address, int projectId)
         {
+            _http.DefaultRequestHeaders.Remove("Authorization");
+            _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
             var uri = _apiUrl + $"/addresses/{projectId}";
             Console.WriteLine($"callin: {uri}");
             var request = new AddAddressRequest() { Addresses = new string[] { address.ToLower() } };
@@ -53,6 +56,8 @@ namespace Merkallow.Web.Services
 
         public async Task<bool> Delete(int addressId)
         {
+            _http.DefaultRequestHeaders.Remove("Authorization");
+            _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
             var uri = _apiUrl + $"/addresses/{addressId}";
             Console.WriteLine($"callin: {uri}");
 
@@ -65,6 +70,8 @@ namespace Merkallow.Web.Services
 
         public async Task<bool> Update(string address, int addressId)
         {
+            _http.DefaultRequestHeaders.Remove("Authorization");
+            _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
             var uri = _apiUrl + $"/addresses/{addressId}";
             Console.WriteLine($"callin: {uri}");
 
