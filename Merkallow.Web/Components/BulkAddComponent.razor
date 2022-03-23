@@ -1,11 +1,28 @@
 ﻿@using System.Text.RegularExpressions
 <div style="margin-top: 1rem; margin-bottom: 1rem;">
-    @*<button class="btn btn-primary" @onclick="@((e) => UploadCSV())"><span class="oi oi-plus" style="margin-right:.5rem; font-size: 14px;"></span>Upload CSV</button>*@
     <h4>Upload CSV</h4>
     <InputFile OnChange="@UploadCSV" class="btn btn-primary">Upload CSV </InputFile>
-
 </div>
+
+@if (CsvFileContent != null && CsvFileContent.Count > 0)
+{
+    <div style="margin-bottom: 2rem;">
+        <h4>Selected: </h4>
+        <div style="margin-bottom: 1rem;">
+            @foreach (var entry in CsvFileContent)
+            {
+                <div>@entry</div>
+            }
+        </div>
+        <button class="btn btn-primary" @onclick="@((e) => AddToWhitelist())"><span class="oi oi-plus" style="margin-right:.5rem; font-size: 14px;"></span>Add to Whitelist</button>
+    </div>
+}
+
 @code {
+    [Parameter]
+    public EventCallback<List<string>> AddEvent { get; set; }
+    List<string> CsvFileContent = null;
+
     async Task UploadCSV(InputFileChangeEventArgs e)
     {
         Console.WriteLine("csv comes");
@@ -20,20 +37,24 @@
         else
         {
             var stream = singleFile.OpenReadStream();
-            var csv = new List<string[]>();
+            CsvFileContent = new List<string>();
             MemoryStream ms = new MemoryStream();
             await stream.CopyToAsync(ms);
             stream.Close();
             var outputFileString = System.Text.Encoding.UTF8.GetString(ms.ToArray());
             Console.WriteLine(outputFileString);
 
-            foreach (var item in outputFileString.Split(new char[]{',', ';'}))
+            foreach (var item in outputFileString.Split(new char[] { ',', ';' }))
             {
-                csv.Add(SplitCSV(item.ToString()));
+                CsvFileContent.Add(item);
             }
-            
-
         }
+    }
+
+    async Task AddToWhitelist()
+    {
+        await AddEvent.InvokeAsync(CsvFileContent);
+        CsvFileContent.Clear();
     }
 
     private string[] SplitCSV(string input)
