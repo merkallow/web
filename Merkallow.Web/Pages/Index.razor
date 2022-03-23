@@ -110,6 +110,8 @@ else
                              DeleteEvent=@DeleteAddress
                              UpdateEvent=@UpdateAddress
                              CannotGenerate=@HasNoAddresses />
+
+        <BulkAddComponent />
     </div>
 
     <h4>Whitelist: @(Addresses?.Count ?? 0)</h4>
@@ -171,7 +173,7 @@ else
         {
             Projects = await Comms.Get();
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Projects = new List<Project>();
             Toast.ShowError($"Error retrieving Projects: {ex.Message}");
