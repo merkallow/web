@@ -111,7 +111,9 @@ else
                              UpdateEvent=@UpdateAddress
                              CannotGenerate=@HasNoAddresses />
 
-        <BulkAddComponent />
+        <BulkAddComponent
+                            AddEvent=@AddBulk
+                            />
     </div>
 
     <h4>Whitelist: @(Addresses?.Count ?? 0)</h4>
@@ -347,6 +349,20 @@ else
         var added = await Addr.Add(publicAddress, SelectedProject.Id);
         SelectedAddress = null;
         Addresses.InsertRange(0, added);
+        Spinning = false;
+    }
+
+    async Task AddBulk(List<string> addressList)
+    {
+        Spinning = true;
+
+        foreach(var publicAddress in addressList)
+        {
+            var added = await Addr.Add(publicAddress, SelectedProject.Id);    
+            SelectedAddress = null;
+            Addresses.InsertRange(0, added);
+        }
+        
         Spinning = false;
     }
 
