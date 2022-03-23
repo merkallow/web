@@ -1,0 +1,9 @@
+﻿<div style="margin-top: 1rem; margin-bottom: 1rem;">
+    <button class="btn btn-primary" @onclick="@(() => UploadCSV())"><span class="oi oi-plus" style="margin-right:.5rem; font-size: 14px;"></span>Upload CSV</button>
+</div>
+@code {
+    async Task UploadCSV()
+    {
+        Console.WriteLine("csv comes");
+    }
+}
