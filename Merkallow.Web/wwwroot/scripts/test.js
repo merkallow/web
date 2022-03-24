@@ -1,8 +1,9 @@
 ﻿//const hsl2rgb = require('./hsl2rgb.js');
 //const pnglib = require('./pnglib');
 
-console.log('from _ test');
+//var pngz = import("./pnglib.js");
 
+console.log('from _ test');
 const address = '0x47B40160f72C4321E08DE8B95E262e902c991cD3';
 
 const randseed = new Array(4);
