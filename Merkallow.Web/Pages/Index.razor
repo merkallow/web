@@ -345,11 +345,18 @@ else
 
     async Task AddAddress(string publicAddress)
     {
-        Spinning = true;
-        var added = await Addr.Add(publicAddress, SelectedProject.Id);
-        SelectedAddress = null;
-        Addresses.InsertRange(0, added);
-        Spinning = false;
+        if (!Addresses.Any(o => o.PublicAddress == publicAddress))
+        {
+            Spinning = true;
+            var added = await Addr.Add(publicAddress, SelectedProject.Id);
+            SelectedAddress = null;
+            Addresses.InsertRange(0, added);
+            Spinning = false;
+        }
+        else
+        {
+            Toast.ShowWarning("This address already exists");
+        }
     }
 
     async Task AddBulk(List<string> addressList)
