@@ -363,6 +363,8 @@ else
     {
         Spinning = true;
 
+        addressList = addressList.Distinct<string>().ToList();
+
         foreach(var publicAddress in addressList)
         {
             if(!Addresses.Any(o => o.PublicAddress == publicAddress))
