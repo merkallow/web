@@ -1,0 +1,23 @@
+﻿<div class="d-flex flex-sm-wrap" style="margin-top: .5rem; margin-bottom: .5rem;">
+    @if (Projects != null)
+    {
+        foreach (var prj in Projects)
+        {
+            <div @onclick="@(() => SelectProject(prj))" class="project-card">
+                <ProjectComponent CurrentProject=prj />
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<Project> Projects { get; set; }
+    [Parameter]
+    public EventCallback<Project> OnSelect { get; set; }
+
+    async Task SelectProject(Project p)
+    {
+        await OnSelect.InvokeAsync(p);
+    }
+}
