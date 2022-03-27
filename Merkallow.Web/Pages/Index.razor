@@ -16,13 +16,6 @@
 
 <PageTitle>Merkallow</PageTitle>
 
-@*@if(AppState.AccountToShow().StartsWith("0x47b4"))*@
-@*@if(true)
-    {
-    <button class="btn btn-secondary" @onclick="@(() => Test())">Test</button>
-    }*@
-
-
 @if (AppState.IsAuthenticated)
 {
     <div style="margin-bottom: .5rem;">Welcome, <span style="color: #5a349aff; font-weight:bold;">@AppState.AccountToShow()</span></div>
@@ -153,11 +146,9 @@ else
         if (HasMetaMask)
             await Meta.ListenToEvents();
 
-        Console.WriteLine("initializing");
         bool isSiteConnected = await Meta.IsSiteConnected();
         if (isSiteConnected)
         {
-            Console.WriteLine("connected");
             await GetSelectedNetwork();
         }
 
@@ -306,6 +297,7 @@ else
             Toast.ShowWarning("Please, specify project name!");
             return;
         }
+
         Spinning = true;
         var newProject = await Comms.Create(NewProjectName);
         Projects.Insert(0, newProject);
@@ -383,7 +375,6 @@ else
     async Task GenerateRoot()
     {
         Spinning = true;
-        Console.WriteLine($"call generate {SelectedProject.Id}");
         GeneratedRoot = await Comms.Generate(SelectedProject.Id);
         Spinning = false;
     }
@@ -399,7 +390,6 @@ else
 
     async Task UpdateAddress(Address address)
     {
-        Console.WriteLine($"updating: {address.PublicAddress}");
         if(Addresses.Any(o => o.PublicAddress == address.PublicAddress))
         {
             throw new Exception("This address is already on the list");
