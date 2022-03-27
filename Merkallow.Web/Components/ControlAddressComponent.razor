@@ -80,10 +80,8 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        //Console.WriteLine($"init control: {firstRender} {SelectedAddress?.PublicAddress}");
         if (SelectedAddress != null && EditingAddressId != SelectedAddress.Id)
         {
-            Console.WriteLine($"setting: {firstRender} {SelectedAddress?.PublicAddress}");
             PublicAddress = SelectedAddress?.PublicAddress;
             EditingAddressId = SelectedAddress.Id;
             StateHasChanged();
