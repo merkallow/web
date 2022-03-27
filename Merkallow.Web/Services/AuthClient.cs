@@ -70,19 +70,13 @@ namespace Merkallow.Web.Services
             builder.Query = query.ToString();
             string uri = builder.ToString();
 
-
             Console.WriteLine($"callin: {uri}");
             var data = await _http.GetFromJsonAsync<User[]>(uri);
 
-            if (data.Length > 0)
-            {
-                //Console.WriteLine("got: ");
-                //foreach (var user in data)
-                //{
-                //    Console.WriteLine($"user: {user.Id} - {user.Nonce} - {user.PublicAddress}");
-                //}
+            if (data.Length == 0)
+            { 
+                Console.WriteLine("No such user there"); 
             }
-            else { Console.WriteLine("No such user there"); }
             return data;
         }
 
@@ -121,13 +115,9 @@ namespace Merkallow.Web.Services
 
             // PATCH User
             Console.WriteLine($"callin: {uri}");
-            //var result = await _http.PatchAsync<User>(uri, user);
-            //var content = await result.Content.ReadAsStringAsync();
-            //var data = JsonSerializer.Deserialize<User>(content, new JsonSerializerOptions(JsonSerializerDefaults.Web));
 
             var content = new StringContent(
                 JsonSerializer.Serialize<User>(user),
-                //JsonConvert.SerializeObject(value, settings ?? JsonSettings),
                 Encoding.UTF8,
                 "application/json");
 

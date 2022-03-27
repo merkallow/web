@@ -30,13 +30,12 @@ namespace Merkallow.Web.Services
 
         public async Task<List<Address>> Get(int id)
         {
-            Console.WriteLine($"Bearer {_appState.BearerToken}");
             _http.DefaultRequestHeaders.Remove("Authorization");
             _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
             var uri = _apiUrl + $"/addresses/{id}";
             Console.WriteLine($"callin: {uri}");
+
             var data = await _http.GetFromJsonAsync<Address[]>(uri);
-            Console.WriteLine($"got: {data.Count()} addresses");
             return data.ToList();
         }
 
@@ -46,8 +45,8 @@ namespace Merkallow.Web.Services
             _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
             var uri = _apiUrl + $"/addresses/{projectId}";
             Console.WriteLine($"callin: {uri}");
-            var request = new AddAddressRequest() { Addresses = new string[] { address.ToLower() } };
 
+            var request = new AddAddressRequest() { Addresses = new string[] { address.ToLower() } };
             var result = await _http.PostAsJsonAsync<AddAddressRequest>(uri, request);
 
             var content = await result.Content.ReadAsStringAsync();
@@ -83,6 +82,5 @@ namespace Merkallow.Web.Services
                 return true;
             else return false;
         }
-
     }
 }
