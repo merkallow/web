@@ -59,18 +59,27 @@
 
     async Task Update()
     {
-        if (PublicAddress.IsValidAddress() && SelectedAddress.PublicAddress != PublicAddress)
+        try
         {
-            SelectedAddress.PublicAddress = PublicAddress;
-            await UpdateEvent.InvokeAsync(SelectedAddress);
-            PublicAddress = string.Empty;
-            SelectedAddress = null;
+
+            if (PublicAddress.IsValidAddress() && SelectedAddress.PublicAddress != PublicAddress)
+            {
+                SelectedAddress.PublicAddress = PublicAddress;
+                await UpdateEvent.InvokeAsync(SelectedAddress);
+                PublicAddress = string.Empty;
+                SelectedAddress = null;
+            }
+            else
+            {
+                Toast.ShowWarning("Please, enter correct Ethereum address");
+            }
+            StateHasChanged();
         }
-        else
+        catch(Exception ex)
         {
-            Toast.ShowWarning("Please, enter correct Ethereum address");
+                Console.WriteLine(ex.Message);
+            Toast.ShowWarning(ex.Message);
         }
-        StateHasChanged();
     }
 
     async Task GenerateRoot()

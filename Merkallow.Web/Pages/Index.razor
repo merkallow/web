@@ -400,6 +400,11 @@ else
     async Task UpdateAddress(Address address)
     {
         Console.WriteLine($"updating: {address.PublicAddress}");
+        if(Addresses.Any(o => o.PublicAddress == address.PublicAddress))
+        {
+            throw new Exception("This address is already on the list");
+        }
+
         if (await Addr.Update(address.PublicAddress, address.Id))
         {
             var i = Addresses.Select((o, i) => new { o, i }).Where(x => x.o.Id == address.Id).FirstOrDefault().i;
