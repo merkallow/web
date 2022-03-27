@@ -1,8 +1,4 @@
-﻿// console.log('executing js');
-////import makeBlockie from 'blockies';
-
-
-
+﻿
 window.switchChain = async function(chainId) {
     console.log('switch chain called');
         await window.ethereum.request({
@@ -66,11 +62,3 @@ function getCookie(name) {
 function eraseCookie(name) {
     document.cookie = name + '=; Max-Age=-99999999;';
 }
-
-// function setBlockie() {
-//     console.log("setting blockie");
-//     const img = new Image();
-//     img.src = makeBlockie('0x7cB57B5A97eAbe94205C07890BE4c1aD31E486A8');
-
-//     //document.body.appendChild(img);
-// }
