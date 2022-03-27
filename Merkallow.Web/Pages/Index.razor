@@ -409,7 +409,6 @@ else
         {
             var i = Addresses.Select((o, i) => new { o, i }).Where(x => x.o.Id == address.Id).FirstOrDefault().i;
             Addresses[i] = address;
-            Console.WriteLine("updated");
             StateHasChanged();
         }
     }
