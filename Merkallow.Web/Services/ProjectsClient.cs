@@ -33,7 +33,6 @@ namespace Merkallow.Web.Services
             var uri = _apiUrl + $"/projects/{id}";
             Console.WriteLine($"callin: {uri}");
             var data = await _http.GetFromJsonAsync<Project>(uri);
-            Console.WriteLine($"got: {data.Name}");
             return data;
         }
 
@@ -44,7 +43,6 @@ namespace Merkallow.Web.Services
             var uri = _apiUrl + $"/projects";
             Console.WriteLine($"callin: {uri}");
             var data = await _http.GetFromJsonAsync<Project[]>(uri);
-            Console.WriteLine($"got: {data.Count()} projects");
             return data.OrderByDescending(o => o.Id).ToList();
         }
 

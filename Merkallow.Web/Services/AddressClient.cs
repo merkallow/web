@@ -30,13 +30,11 @@ namespace Merkallow.Web.Services
 
         public async Task<List<Address>> Get(int id)
         {
-            Console.WriteLine($"Bearer {_appState.BearerToken}");
             _http.DefaultRequestHeaders.Remove("Authorization");
             _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {_appState.BearerToken}");
             var uri = _apiUrl + $"/addresses/{id}";
             Console.WriteLine($"callin: {uri}");
             var data = await _http.GetFromJsonAsync<Address[]>(uri);
-            Console.WriteLine($"got: {data.Count()} addresses");
             return data.ToList();
         }
 
